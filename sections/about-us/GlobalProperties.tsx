@@ -1,3 +1,5 @@
+"use client"
+
 import { _properties } from "@/_data/images";
 import { Button } from "@/components/ui/button";
 import { Phone } from "lucide-react";

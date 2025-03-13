@@ -1,3 +1,5 @@
+"use client"
+
 import { Button } from "@/components/ui/button";
 import { ArrowRight, MapPin, Bath, BedDouble, Diamond, Sparkle, ChevronLeft, ChevronRight, Heart, Ratio } from "lucide-react";
 import {

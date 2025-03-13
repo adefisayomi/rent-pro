@@ -1,3 +1,5 @@
+"use client"
+
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -11,8 +13,8 @@ export default function SearchBar () {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant="ghost" className="bg-muted" size='icon'>
-            <Search/>
+        <Button variant="ghost" className="rounded-[8px] bg-muted" size='icon'>
+            <Search className="w-5"/>
         </Button>
       </DialogTrigger>
 

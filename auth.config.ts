@@ -2,7 +2,7 @@ import type { NextAuthConfig } from 'next-auth';
 import Routes from './Routes';
 
 export const authConfig: NextAuthConfig = {
-  experimental: { enableWebAuthn: true },
+  secret: process.env.AUTH_SECRET,
   pages: {
     signIn: '/signin',
     error: '/signin/error',

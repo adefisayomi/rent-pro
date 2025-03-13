@@ -1,3 +1,5 @@
+"use client"
+
 import { useReducer, useEffect } from 'react';
 
 type UseLocalStorageReturnType<T> = [T, (value: T) => void];

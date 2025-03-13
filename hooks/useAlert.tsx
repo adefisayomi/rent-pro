@@ -1,3 +1,5 @@
+"use client"
+
 import { ToastType } from '@/components/CustomToast';
 import { ReactNode } from 'react';
 import { toast } from 'sonner';

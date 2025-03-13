@@ -30,7 +30,7 @@ import DropDownComp from "@/components/DropdownComp"
 
 type FilterFormData = yup.InferType<typeof filterFormSchema>;
 
-export default function HomeFilterForm () {
+export default function HomeFilterForm ({onClose}: {onClose?: () => void}) {
 
   const [savedFilters, setSavedFilters] = useLocalStorage<FilterFormData>('queryfilterForm', {
     type: [],
@@ -90,9 +90,9 @@ export default function HomeFilterForm () {
       <form onSubmit={form.handleSubmit(onSubmit)} className=" text-white flex flex-col w-full">
         <div className="w-full flex items-center bg-slate-900 justify-between gap-2 p-4 pl-10  border-b border-muted-foreground">
             <h2 className="text-sm font-semibold capitalize">Filter</h2>
-            <Button className=" border-muted-foreground border rounded-xl bg-slate-800 flex items-center gap-2">
+            <Button onClick={onClose} variant='outline' className=" group/closeButton border-muted-foreground border rounded-xl bg-slate-800 flex items-center gap-2">
                 Close
-                <X className="w-4 text-muted" />
+                <X className="w-4 text-muted group-hover/closeButton:text-gray-800" />
             </Button>
         </div>
 

@@ -77,5 +77,4 @@ export const { auth, signIn, signOut, handlers: { GET, POST } } = NextAuth({
       return session;
     },
   },
-  secret: process.env.AUTH_SECRET,
 });

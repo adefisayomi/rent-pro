@@ -1,3 +1,5 @@
+"use client"
+
 import { useState, Dispatch, SetStateAction, useEffect } from 'react';
 
 type UseCookieReturnType<T> = [T, Dispatch<SetStateAction<T>>, () => void];
