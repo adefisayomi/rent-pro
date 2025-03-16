@@ -27,7 +27,6 @@ const Routes = {
         },
         settings: {
             'alarm & nofitications': '/dashboard/settings/notifications',
-            logout: '/dashboard/settings/logout',
         }
         
     }

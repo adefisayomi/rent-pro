@@ -3,16 +3,18 @@ import { Checkbox } from "@/components/ui/checkbox";
 
 
 
-export default function Plan () {
+export default function Plan ({title}: {title: string}) {
     return (
+        <>
+        <h2 className="text-xs font-semibold capitalize pb-4">{title}</h2>
         <div className="w-full flex flex-col gap-10">
-            <div className="grid grid-cols-2 border rounded-md">
+            <div className="grid md:grid-cols-2 grid-cols-1 border rounded-md">
                 <div className="flex flex-col gap-2 p-5">
                     <h4 className="text-xs font-semibold text-slate-800 capitalize">Current Plan (Standard)</h4>
                     <p className="text-muted-foreground text-[11px] ">Unlimited access to our legal document library and online rental application tool, billed monthly. </p>
                 </div>
 
-                <div className="flex items-start gap-2 p-5 border-l">
+                <div className="flex items-start gap-2 p-5 md:border-l border-t md:border-t-0">
                     <h1 className="text-3xl font-bold text-slate-800">₦10k</h1>
                     <div className="flex flex-col gap-2">
                         <h4 className="text-xs font-semibold text-slate-800 capitalize">Monthly Plan</h4>
@@ -22,12 +24,13 @@ export default function Plan () {
                 </div>
             </div>
 
-            <div className="w-full grid grid-cols-3 gap-4">
+            <div className="w-full grid md:grid-cols-3 grid-cols-1 gap-4">
                 <RateCard title="free plan" price="0" />
                 <RateCard title="standard" price="₦10k" defaultChecked />
                 <RateCard title="business" price="₦25k" />
             </div>
         </div>
+        </>
     )
 }
 

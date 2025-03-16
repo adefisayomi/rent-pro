@@ -1,21 +1,21 @@
 "use server";
 
-import { errorMessage, socialKey } from "@/constants";
+import { errorMessage, notificationKey } from "@/constants";
 import { adminDB } from "@/utils/firebaseAdmin";
-import { SocialsType } from "@/sections/dashboard/formSchemas";
+import { NotificationType } from "@/sections/dashboard/formSchemas";
 import { extractAllowedKeys } from "@/utils/extractAllowedKeys";
 import { currUser } from "./auth";
 
 
-export async function updateSocial(payload: SocialsType) {
+export async function updateNotifications(payload: NotificationType) {
   try {
     const { data: user, message, success } = await currUser();
     if (!success || !user?.uid) throw new Error(message || "Unauthorized request");
 
-    const userRef = adminDB.collection(socialKey).doc(user.uid);
+    const userRef = adminDB.collection(notificationKey).doc(user.uid);
 
     // Extract only allowed fields
-    const data = extractAllowedKeys<SocialsType>(payload, ["facebook", "instagram", "twitter", "linkedin"]);
+    const data = extractAllowedKeys<NotificationType>(payload, ["getAccountUpdate", "getBookmarkNotification", 'getClientEmail', 'getCommentNotification', 'getExpiryNotification', 'getInspirations', 'getInquiryNotification', 'getInsiderNews', 'getListingUpdates', 'getMarketInsight', 'getMeetupNews', 'getMentionNotification', 'getScheduleNotification', 'getOpportunity', 'getNews']);
 
     // Check if the document exists
     const doc = await userRef.get();
@@ -37,12 +37,12 @@ export async function updateSocial(payload: SocialsType) {
 /**
  * Fetches the user's social links from Firestore.
  */
-export async function getSocial() {
+export async function getNotifications() {
   try {
     const { data: user, message, success } = await currUser();
     if (!success || !user?.uid) throw new Error(message || "Unauthorized request");
 
-    const userRef = adminDB.collection(socialKey).doc(user.uid);
+    const userRef = adminDB.collection(notificationKey).doc(user.uid);
     const doc = await userRef.get();
 
     if (!doc.exists) {
@@ -50,12 +50,12 @@ export async function getSocial() {
     }
 
     // Convert Firestore Timestamps to JSON-friendly format
-    const socials = doc.data();
-    if (socials?.createdAt) {
-      socials.createdAt = socials.createdAt.toDate().toISOString(); // Convert Firestore Timestamp to string
+    const res = doc.data();
+    if (res?.createdAt) {
+        res.createdAt = res.createdAt.toDate().toISOString(); // Convert Firestore Timestamp to string
     }
 
-    return { success: true, message: null, data: socials };
+    return { success: true, message: null, data: res };
   } catch (err: any) {
     return errorMessage(err.message);
   }

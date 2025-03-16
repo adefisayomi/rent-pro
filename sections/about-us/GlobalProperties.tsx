@@ -3,6 +3,7 @@
 import { _properties } from "@/_data/images";
 import { Button } from "@/components/ui/button";
 import { Phone } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 
 
@@ -13,8 +14,8 @@ export default function GlobalProperties () {
 
     return (
         <div className="w-full grid grid-cols-1 md:grid-cols-2 place-items-start max-w-8xl mx-auto py-20 gap-10">
-            <img
-                src="https://firebasestorage.googleapis.com/v0/b/rent-house-a2c71.appspot.com/o/Left.svg?alt=media&token=5271b897-aba6-4076-bbfe-2850f43a4403"
+            <Image
+                src="/about-us-global.svg"
                 alt="about-image"
                 draggable={false}
                 className=" flex w-full"

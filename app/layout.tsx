@@ -3,7 +3,6 @@ import { Poppins } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
 import CustomToast from "@/components/CustomToast";
-import { SessionProvider } from "next-auth/react"
 
 const poppins = Poppins({ subsets: ["latin"], weight: ['100', '200', "300", '400', '500', '600', '700', '800', '900'] });
  
@@ -50,10 +49,8 @@ export default function RootLayout({
       <body
         className={cn(poppins.className, "antialiased bg-slate-50")}
       >
-        <SessionProvider>
           <CustomToast />
           {children}
-          </SessionProvider>
       </body>
     </html>
   );

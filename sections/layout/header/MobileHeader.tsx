@@ -1,13 +1,13 @@
-"use client"
+"use client";
 
+import { useEffect, useState } from "react";
 import Logo from "@/components/Logo";
 import SearchBar from "./searchBar";
-import { Menu, X } from "lucide-react"
-import { navConfig } from "./navConfig"
-import { useState } from "react";
+import { Dot, LoaderCircle, Menu, X } from "lucide-react";
+import { navConfig } from "./navConfig";
 import Link from "next/link";
 import UserMenu from "./userMenu";
-import { Button } from "@/components/ui/button"
+import { Button } from "@/components/ui/button";
 import {
   Sheet,
   SheetContent,
@@ -16,49 +16,149 @@ import {
   SheetHeader,
   SheetTitle,
   SheetTrigger,
-} from "@/components/ui/sheet"
+} from "@/components/ui/sheet";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import Notification from "@/components/Notification";
+import useAuthStore from "@/contexts/useAuth";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion"
+import Routes from "@/Routes";
+import { cn } from "@/lib/utils";
+import { useRouter } from "next/navigation";
+
 
 
 export default function MobileHeader() {
-  const [open , setopen] = useState(false)
+  const [open, setOpen] = useState(false);
+  const [isSticky, setIsSticky] = useState(true);
+  const { user, loading } = useAuthStore();
+
+  useEffect(() => {
+    let timeout: NodeJS.Timeout;
+
+    const handleScroll = () => {
+      setIsSticky(true);
+      clearTimeout(timeout);
+      timeout = setTimeout(() => {
+        setIsSticky(false);
+      }, 3000); // 5 seconds idle time before removing sticky
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      clearTimeout(timeout);
+    };
+  }, []);
+
+  if (loading) return <LoaderCircle className="w-4 h-4 animate-spin" />;
+
   return (
-      <div className="w-full flex items-center justify-between px-3 h-full py-4">
-          <span>{!open && <Logo />}</span>
-
-          <div className="flex items-center gap-2">
-          <SearchBar />
-          <Sheet onOpenChange={setopen}>
-            <SheetTrigger asChild>
-              <Button size='icon' className="rounded-[8px]">
-                { open ? <X className="w-4" /> : <Menu className="w-4" />}
-              </Button>
-            </SheetTrigger>
-
-            <SheetContent className="bg-slate-50 border-0 p-0">
-              <SheetHeader>
-                <SheetTitle>
-                  <Logo />
-                </SheetTitle>
-                <SheetDescription className="text-[10px] mt-2">
-                  Lets find you your forever home...
-                </SheetDescription>
-              </SheetHeader>
-              <div className=" flex items-start flex-col w-full">
-                {
-                  navConfig.map((nav, index) => (
-                      <Link key={index} href={nav.href} className="w-full hover:bg-slate-100 text-gray-700 p-4 border-b capitalize hover:uppercase hover:text-primary duration-300">
-                        <p className="w-full  font-semibold text-xs ">{nav.title}</p>
-                      </Link>
-                  ))
-                }
-              </div>
-
-              <SheetFooter>
-                <UserMenu />
-              </SheetFooter>
-            </SheetContent>
-          </Sheet>
-          </div>
+    <div
+      className={`w-full grid grid-cols-3 px-2 min-h-16 py-4 shadow-sm z-50 bg-background/50 backdrop-blur-md transition-all duration-300 
+        ${isSticky ? "sticky top-0 left-0" : "static top-0 left-0"}`}
+    >
+      <div className="flex items-center justify-start">
+        {!open && <Logo />}
       </div>
-  )
+
+      <div className="flex items-center justify-center">{user && <Notification />}</div>
+
+      <div className="flex items-center justify-end gap-2">
+        <SearchBar />
+        <Dot className="w-4 h-4" />
+        <Sheet onOpenChange={setOpen} open={open}>
+          <SheetTrigger asChild>
+            {user ? (
+              <Avatar className="border-2 cursor-pointer w-9 h-9 flex items-center justify-center">
+                <AvatarImage className="w-full h-full object-cover" src={user?.photoURL || ""} />
+                <AvatarFallback className="uppercase text-sm">
+                  {user?.displayName?.slice(0, 2) || user?.email?.slice(0, 2)}
+                </AvatarFallback>
+              </Avatar>
+            ) : (
+              <Button size="icon" className="rounded-[8px]">
+                {open ? <X className="w-4" /> : <Menu className="w-4" />}
+              </Button>
+            )}
+          </SheetTrigger>
+
+          <SheetContent className="bg-slate-50 border-0 p-0">
+            <SheetHeader>
+              <SheetTitle>
+                <Logo />
+              </SheetTitle>
+              <SheetDescription className="text-[11px] mt-2 text-gray-600">
+                One home at a time...
+              </SheetDescription>
+            </SheetHeader>
+            <div className="flex items-start flex-col w-full overflow-y-auto">
+              {navConfig.map((nav, index) => (
+                <Link
+                  key={index}
+                  href={nav.href}
+                  className="w-full hover:bg-slate-100 text-gray-700 p-4 border-b capitalize hover:uppercase hover:text-primary duration-300"
+                >
+                  <p className="w-full font-semibold text-xs ">{nav.title}</p>
+                </Link>
+              ))}
+
+            <DashboardNav setOpen={setOpen}/>
+            </div>
+
+            <SheetFooter>
+              <UserMenu />
+            </SheetFooter>
+          </SheetContent>
+        </Sheet>
+      </div>
+    </div>
+  );
+}
+
+
+
+export function DashboardNav({ setOpen }: { setOpen: Function }) {
+  const router = useRouter();
+
+  const handleNavigation = (path: string) => {
+    router.push(path); // Navigate first
+    setTimeout(() => setOpen(false), 100); // Close after navigation
+  };
+
+  return (
+    <Accordion type="multiple" className="w-full gap-0">
+      {Object.entries(Routes.dashboard).map(([section, items], index) => (
+        <div key={index} className="w-full">
+          <AccordionItem value={section}>
+            <AccordionTrigger className="w-full font-semibold text-xs rounded-none hover:bg-slate-100 text-gray-700 p-4 border-b uppercase">
+              {section}
+            </AccordionTrigger>
+
+            <AccordionContent>
+              {typeof items === "string" ? (
+                <div onClick={() => handleNavigation(items)}>
+                  <div className="w-full hover:border-primary border-b p-4 h-[45px] text-muted-foreground flex items-center duration-100 hover:text-primary cursor-pointer">
+                    <p className="text-[11px] font-medium capitalize">{section}</p>
+                  </div>
+                </div>
+              ) : (
+                Object.entries(items).map(([label, path], subIndex) => (
+                  <div key={subIndex} onClick={() => handleNavigation(path)}>
+                    <div className="w-full hover:border-primary text-muted-foreground duration-100 border-b p-4 h-[45px] flex items-center hover:text-primary cursor-pointer">
+                      <p className="text-[11px] font-medium capitalize">{label}</p>
+                    </div>
+                  </div>
+                ))
+              )}
+            </AccordionContent>
+          </AccordionItem>
+        </div>
+      ))}
+    </Accordion>
+  );
 }

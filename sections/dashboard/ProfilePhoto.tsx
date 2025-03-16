@@ -1,199 +1,126 @@
-// import { deleteSingleImage,  uploadSingleImage, uploadSingleImageFromUrl } from "@/hooks/useGetImage";
-// import { CloudUpload, LoaderCircle } from "lucide-react";
-// import React, { useEffect, useState, useCallback } from "react";
-// import { Button } from "@/components/ui/button";
-// import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
-// import { Skeleton } from "@/components/ui/skeleton";
-// import { LabelSeparator } from "@/components/ui/separator";
-// import useAlert from "@/hooks/useAlert";
+"use client";
 
-// interface ProfilePictureProps {
-//   url: string;
-//   setProfilePhoto: (url: any) => void;
-// }
+import { useState } from "react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import { getSingleImage } from "@/hooks/useGetImage";
+import useAlert from "@/hooks/useAlert";
+import {Loader2, Upload} from 'lucide-react'
+import useAuthStore from "@/contexts/useAuth";
+import { deleteSingleImage, uploadSingleImage } from "@/actions/upload";
+import {updateProfile, User} from 'firebase/auth'
+import { auth } from "@/config";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
 
-// export const ProfilePicture = React.memo(({ url, setProfilePhoto }: ProfilePictureProps) => {
-//   const { user } = useAuthStore();
-//   const { setAlert } = useAlert();
-//   const [openModal, setOpenModal] = useState(false);
-//   const [uploading, setUploading] = useState(false);
-//   const [dragActive, setDragActive] = useState(false);
-//   const [deletingImage, setDeletingImage] = useState(false);
-//   const [file, setFile] = useState<File | null>(null);
-//   const [pasteUrl, setPasteUrl] = useState("");a
 
-//   // Drag & Drop Handlers
-//   const handleDragOver = useCallback((e: React.DragEvent<HTMLDivElement>) => {
-//     e.preventDefault();
-//     setDragActive(true);
-//   }, []);
+export default function ImageUploader() {
+    
+  const [open, setOpen] = useState(false)
+  const {user, refreshUser} = useAuthStore()
+  const [uploading, setUploading] = useState(false)
+  const {setAlert} = useAlert()
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    try {
+      const image = await getSingleImage(e)
+      if (!image.success && image.message) throw new Error(image.message)
+        // 
+      setUploading(true)
+      const downloadUrl = await uploadSingleImage(image.data as File, user?.uid!)
+      if (!downloadUrl.success && downloadUrl.message) throw new Error(downloadUrl.message)
+        //
+      await updateProfile(auth.currentUser!, {photoURL: downloadUrl.data})
+      await refreshUser()
+      
+      return setAlert('Profile photo upload successful', 'success')
+    }
+    catch(err: any) {
+      return setAlert(err.message, 'error')
+    }
+    finally {
+      setUploading(false)
+    }
+  }
 
-//   const handleDrop = useCallback(async (e: React.DragEvent<HTMLDivElement>) => {
-//     e.preventDefault();
-//     setDragActive(false);
-//     const droppedFile = e.dataTransfer.files[0];
-//     if (droppedFile) {
-//       if (!droppedFile.type.startsWith('image/')) {
-//         setAlert('Please drop an image file', 'error');
-//         return;
-//       }
-//       if (droppedFile.size > 5000000) {
-//         setAlert('File too large. 5MB max', 'error');
-//         return;
-//       }
-//       setFile(droppedFile);
-//     }
-//   }, [setAlert]);
+  const handleDelete = async () => {
+    try {
+      setUploading(true)
+      await deleteSingleImage(user?.photoURL as string)
+      await updateProfile(auth.currentUser!, {photoURL: ''})
+      await refreshUser()
+      setAlert('Profile photo deleted successful', 'info')
+      return setOpen(false)
+    }
+    catch(err: any) {
+      return setAlert(err.message, 'error')
+    }
+    finally {
+      setUploading(false)
+    }
+  }
 
-//   const handleDragLeave = useCallback((e: React.DragEvent<HTMLDivElement>) => {
-//     e.preventDefault();
-//     setDragActive(false);
-//   }, []);
+  return (
+    <div className="w-full flex flex-col md:flex-row items-center gap-4 justify-start">
+      <Avatar className="border-2 cursor-pointer w-32 h-32 md:w-20 md:h-20 flex items-center justify-center">
+        {
+          uploading ? <Loader2 className="w-4 animate-spin duration-1000" /> : (
+            <>
+              <AvatarImage className="w-full h-full object-cover flex" src={user?.photoURL || ''} />
+              <AvatarFallback className="uppercase text-sm">
+                {user?.displayName?.slice(0, 2)}
+              </AvatarFallback>
+            </>
+          )
+        }
+        
+      </Avatar>
 
-//   // File Upload
-//   const handleGetPhotoFile = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
-//     const selectedFile = e.target.files?.[0];
-//     if (selectedFile) {
-//       if (!selectedFile.type.startsWith('image/')) {
-//         setAlert('Only image files are allowed', 'error');
-//         return;
-//       }
-//       if (selectedFile.size > 5000000) {
-//         setAlert('File too large. 5MB max', 'error');
-//         return;
-//       }
-//       setFile(selectedFile);
-//     }
-//   }, [setAlert]);
+      <label 
+        htmlFor="profile_image"
+        className="border-2 border-slate-400 hover:bg-muted cursor-pointer md:rounded-3xl rounded-lg capitalize w-[80%] md:w-fit px-3 h-10 flex items-center justify-center text-[12px] font-medium text-gray-800"
+      >
+        {
+        !uploading && 
+        <input
+          type="file"
+          accept="image/*"
+          id='profile_image'
+          name='profile_image'
+          onChange={handleFileChange}
+          className="border border-gray-300 rounded p-2 hidden"
+        />}
+        upload new picture
+        </label>
 
-//   const handleFileUpload = useCallback(async () => {
-//     if (!file) return;
-//     try {
-//       setUploading(true);
-//       setOpenModal(false);
-//       const { data, success, message } = await uploadSingleImage(file, user?.uid!);
-//       if (!success) throw new Error(message!);
-//       setProfilePhoto(data!);
-//     } catch (err: any) {
-//       setAlert(err.message, 'error');
-//     } finally {
-//       setUploading(false);
-//       setFile(null);
-//     }
-//   }, [file, setProfilePhoto, setAlert, user?.uid]);
+        
 
-//   const handleUploadFromUrl = useCallback(async () => {
-//     try {
-//       setUploading(true);
-//       setOpenModal(false);
-//       const { data, success, message } = await uploadSingleImageFromUrl(pasteUrl, user?.uid!);
-//       if (!success) throw new Error(message!);
-//       setProfilePhoto(data!);
-//     } catch (err: any) {
-//       setAlert(err.message, 'error');
-//     } finally {
-//       setUploading(false);
-//     }
-//   }, [pasteUrl, setProfilePhoto, setAlert, user?.uid]);
-
-//   const handleDeleteProfilePhoto = useCallback(async () => {
-//     if (!url) return;
-//     setDeletingImage(true);
-//     try {
-//       const { success, message } = await deleteSingleImage(url);
-//       if (!success) throw new Error(message!);
-//       setProfilePhoto('');
-//     } catch (err: any) {
-//       setAlert(err.message, 'error');
-//     } finally {
-//       setDeletingImage(false);
-//     }
-//   }, [url, setProfilePhoto, setAlert]);
-
-//   useEffect(() => {
-//     if (file) {
-//       handleFileUpload();
-//     }
-//   }, [file, handleFileUpload]);
-
-//   return (
-//     <Dialog open={openModal} onOpenChange={setOpenModal}>
-//       <div className="flex items-center gap-2">
-//         <div className="w-16 h-16 rounded-full p-[2px] border-2 border-muted">
-//           {uploading ? (
-//             <Skeleton className="h-full w-full rounded-full" />
-//           ) : (
-//             <img
-//               src={url || user?.photoURL || ''}
-//               alt="Profile"
-//               className="w-full h-full object-cover rounded-full"
-//             />
-//           )}
-//         </div>
-
-//         <DialogTrigger asChild>
-//           <Button variant="outline" className="text-[10px]" size="sm">
-//             Upload New Picture
-//           </Button>
-//         </DialogTrigger>
-//         {!url && (
-//           <Button
-//             className="text-[10px] bg-muted text-black hover:bg-slate-200 px-5"
-//             size="sm"
-//             onClick={handleDeleteProfilePhoto}
-//           >
-//             Delete
-//           </Button>
-//         )}
-//       </div>
-
-//       <DialogContent className="sm:max-w-lg flex flex-col gap-6 items-center pt-10">
-//         <div
-//           className={`w-full h-full border-2 border-dashed rounded-lg flex flex-col gap-4 items-center mt-4 py-4 ${
-//             dragActive ? 'border-blue-500' : ''
-//           }`}
-//           onDrop={handleDrop}
-//           onDragOver={handleDragOver}
-//           onDragLeave={handleDragLeave}
-//         >
-//           <CloudUpload className="h-16 w-16" />
-//           <p className="text-sm capitalize">Drag & Drop your file here</p>
-//           <p className="text-xs lowercase text-zinc-500">
-//             Supported file: JPEG, PNG, GIF, JPG
-//           </p>
-//         </div>
-
-//         <LabelSeparator label="or" className="text-xs max-w-[250px]" />
-
-//         <Button type="submit" className="w-full max-w-xs p-0">
-//           <label htmlFor="profile_image" className="w-full h-full bg-transparent items-center flex justify-center cursor-pointer">
-//             <input
-//               type="file"
-//               id="profile_image"
-//               style={{ display: 'none' }}
-//               onChange={handleGetPhotoFile}
-//             />
-//             Browse Device
-//           </label>
-//         </Button>
-
-//         <LabelSeparator label="or" className="text-xs max-w-[250px]" />
-
-//         <div className="border w-full rounded-md flex items-center gap-1 p-1">
-//           <input
-//             type="url"
-//             className="border-none bg-background outline-none h-full w-full px-2 text-xs"
-//             placeholder="Paste photo URL"
-//             value={pasteUrl}
-//             onChange={(e) => setPasteUrl(e.target.value)}
-//           />
-//           <Button size="sm" className="px-7" onClick={handleUploadFromUrl}>
-//             Upload
-//           </Button>
-//         </div>
-//       </DialogContent>
-//     </Dialog>
-//   );
-// });
-
-// ProfilePicture.displayName = 'ProfilePicture'
+        {/* ----------------------------- */}
+          <AlertDialog onOpenChange={setOpen} open={open}>
+            <AlertDialogTrigger asChild>
+              <Button disabled={uploading} variant='ghost' className="h-10 md:bg-muted bg-destructive md:rounded-3xl rounded-lg capitalize w-[80%] md:w-fit">Delete</Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle className="uppercase text-xs font-medium ">Are you absolutely sure?</AlertDialogTitle>
+                <AlertDialogDescription className="text-[11px] lowercase text-muted-foreground">
+                  Are you sure you want to delete this picture ?
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <Button size='sm' variant='outline' onClick={() => setOpen(false)}>Cancel</Button>
+                <Button size='sm' loading={uploading} onClick={handleDelete}>Continue</Button>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+    </div>
+  );
+}

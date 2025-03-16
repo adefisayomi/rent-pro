@@ -1,54 +1,66 @@
 "use server"
 
-import { errorMessage } from "@/constants";
-import { auth, signIn, signOut } from "../auth";
-import { AuthError } from "next-auth";
-import Routes from "@/Routes";
+import { auth_token, errorMessage } from "@/constants";
+import { cookies } from 'next/headers'
+import { adminAuth } from "@/utils/firebaseAdmin";
 
-export type AuthType = 'google' | 'linkedin' | 'twitter' | 'facebook';
-export async function handleSocialAuth(type: AuthType) {
-  try {
-    await signIn(type);
-  } catch (error: any) {
-    if (error instanceof AuthError) {
-      return errorMessage(error.message)
-    }
-    throw error;
-  }
-}
-
-
-export async function authenticateWithEmail (
-  prevState: string | undefined,
-  formData: {email: string, password: string},
-) {
-  try {
-    await signIn('credentials', formData);
-  } catch (error) {
-    if (error instanceof AuthError) {
-      switch (error.type) {
-        case 'CredentialsSignin':
-          return 'Invalid credentials.';
-        default:
-          return 'Something went wrong.';
-      }
-    }
-    throw error;
-  }
-}
 
 export const currUser = async () => {
-  return await auth().then(res => res?.user)
+  try {
+    const cookieStore = await cookies(); // ✅ Await the cookies
+    const token = cookieStore.get(auth_token)?.value; // ✅ Extract token safely
+    if (!token) throw new Error('unauthorized request!')
+      // 
+    const user = await adminAuth.verifySessionCookie(token); // ✅ Verify ID token
+    return ({
+      success: true,
+      data: user,
+      message: null
+    })
+  } catch (err: any) {
+    return errorMessage(err.message)
+  }
+};
+
+export async function createSessionCookie(idToken: string) {
+  try {
+    const expiresIn = 14 * 24 * 60 * 60 * 1000;
+
+    // Create session cookie using Firebase Admin SDK
+    const sessionCookie = await adminAuth.createSessionCookie(idToken, { expiresIn });
+
+    // Set the session cookie in the user's browser
+    const cookieStore = await cookies()
+    cookieStore.set(auth_token, sessionCookie, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      maxAge: expiresIn / 1000, // Convert to seconds
+      path: "/",
+    });
+
+    return { success: true, message: "Session cookie set successfully." };
+  } catch (err: any) {
+    console.error("Error creating session cookie:", err.message);
+    return { success: false, message: err.message };
+  }
 }
 
-
-export async function handleSignOut() {
+export async function deleteSessionCookie() {
   try {
-    await signOut({redirect: true, redirectTo: Routes.login});
-  } catch (error: any) {
-    if (error instanceof AuthError) {
-      return errorMessage(error.message)
-    }
-    throw error;
+    // Get the cookie store
+    const cookieStore = await cookies();
+
+    // Remove the session cookie
+    cookieStore.set(auth_token, "", {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      maxAge: 0, // Expire immediately
+      path: "/",
+    });
+
+    return { success: true, message: "Session cookie deleted successfully." };
+  } catch (err: any) {
+    console.error("Error deleting session cookie:", err.message);
+    return { success: false, message: err.message };
   }
 }

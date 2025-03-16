@@ -16,55 +16,51 @@ import { Button } from "@/components/ui/button"
 import { accountInformationSchema } from "@/sections/dashboard/formSchemas"
 import useAlert from "@/hooks/useAlert"
 import { useEffect, useState } from "react"
-import DropDownComp from "@/components/DropdownComp"
 import { isEqual } from "lodash-es"
-import { DbUserType } from "@/server/models/user"
-import { updateUser } from "@/actions/user"
+import ImageUploader from "./ProfilePhoto"
+import useAuthStore from "@/contexts/useAuth"
+import { auth } from "@/config"
+import { updateEmail, updateProfile } from "firebase/auth"
 
 
 
-type ExtendedUser = DbUserType & { name: string };
 
-export default function AccountInformation ({user}: {user: ExtendedUser}) {
+export default function AccountInformation ({title}: {title: string}) {
 
+    const {user, refreshUser } = useAuthStore()
     const {setAlert} = useAlert()
+    const [firstName = "", ...lastNameParts] = user?.displayName?.split(" ") || [];
+    const lastName = lastNameParts.join(" ");
     const form = useForm<yup.InferType<typeof accountInformationSchema>>({
         resolver: yupResolver(accountInformationSchema),
-        defaultValues: {firstName: '', lastName: '', email: '', gender: '', phone: '', photoUrl: '', username:''}
+        defaultValues: {firstName, lastName: lastName, email: user?.email!, phone: user?.phoneNumber!}
       })
     const watchedValues = useWatch({ control: form.control });
     const [dataChanged, setDataChanged] = useState(false)
 
     // ---
     async function onSubmit(data: yup.InferType<typeof accountInformationSchema>) {
-            if (dataChanged) {
-                const { success, message} = await updateUser({gender: data.gender!, phone: data.phone!})
-                if (!success && message) {
-                    setAlert(message, 'error')
-                }
-                else setAlert('Updated successfuly', 'success')
-                return setDataChanged(false)
-            }
-      }
-    // 
-    useEffect(() => {
-        const handleSetUser = async () => {
-          if (user) {
-            const nameParts = user.name?.split(" ") || [];
-            const firstName = nameParts.shift() || "";
-            const lastName = nameParts.join(" ") || ""; // Join remaining words as last name
+        try {
+          const { email, firstName, lastName, phone } = data;
+          const user = auth.currentUser; // Get the current authenticated user
       
-            form.setValue("email", user?.email || "");
-            form.setValue("firstName", firstName);
-            form.setValue("lastName", lastName);
-            form.setValue("gender", user?.gender);
-            form.setValue("username", user?.username);
-            form.setValue("phone", user?.phone);
+          if (!user) throw new Error("User not found");
+      
+          // Update profile (display name)
+          await updateProfile(user, {
+            displayName: `${firstName} ${lastName}`,
+          });
+      
+          // Update email if it has changed
+          if (email && email !== user.email) {
+            await updateEmail(user, email);
           }
+          await refreshUser()
+          setAlert("Updated successfully", "success");
+        } catch (err: any) {
+          setAlert(err.message, "error");
         }
-      
-        handleSetUser();
-      }, [user]);
+      }
       
       useEffect(() => {
         setDataChanged(!isEqual(watchedValues, user));
@@ -73,10 +69,11 @@ export default function AccountInformation ({user}: {user: ExtendedUser}) {
     
     return (
     <Form {...form}>
+            
+            <h2 className="text-xs font-semibold capitalize pb-2">{title}</h2>
             <form  onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-5 w-full">
-                <div>
 
-                </div>
+                <span className='my-4'><ImageUploader/></span>
 
 
                 <FormField
@@ -86,7 +83,7 @@ export default function AccountInformation ({user}: {user: ExtendedUser}) {
                         <FormItem className="w-full">
                         <FormLabel className="text-[11px]">First Name</FormLabel>
                         <FormControl>
-                            <Input placeholder="first name" disabled {...field} className='bg-slate-50' />
+                            <Input placeholder="first name"  {...field} className='bg-slate-50' />
                         </FormControl>
                         <FormMessage />
                         </FormItem>
@@ -99,41 +96,29 @@ export default function AccountInformation ({user}: {user: ExtendedUser}) {
                         <FormItem className="w-full">
                         <FormLabel className="text-[11px]">Last Name</FormLabel>
                         <FormControl>
-                            <Input disabled placeholder="last name" {...field} className='bg-slate-50' />
+                            <Input  placeholder="last name" {...field} className='bg-slate-50' />
                         </FormControl>
                         <FormMessage />
                         </FormItem>
                     )}
                 />
-                <FormField
+                {/* <FormField
                     control={form.control}
                     name="username"
                     render={({ field }) => (
                         <FormItem className="w-full">
                         <FormLabel className="text-[11px]">Username</FormLabel>
                         <FormControl>
-                            <Input disabled placeholder="username" {...field} className='bg-slate-50' />
+                            <Input  placeholder="username" {...field} className='bg-slate-50' />
                         </FormControl>
                         <FormMessage />
                         </FormItem>
                     )}
-                />
+                /> */}
 
-                <FormField
-                    control={form.control}
-                    name="phone"
-                    render={({ field }) => (
-                        <FormItem className="w-full">
-                        <FormLabel className="text-[11px]">Phone Number</FormLabel>
-                        <FormControl>
-                            <Input type='tel' placeholder="phone " {...field} className='bg-slate-50' />
-                        </FormControl>
-                        <FormMessage />
-                        </FormItem>
-                    )}
-                />
+                
 
-                <div className="gap-2 grid grid-cols-4 ">
+                <div className="md:gap-2 gap-5 grid grid-cols-1 md:grid-cols-5 ">
                     <FormField
                         control={form.control}
                         name="email"
@@ -141,7 +126,7 @@ export default function AccountInformation ({user}: {user: ExtendedUser}) {
                             <FormItem className="w-full col-span-3">
                             <FormLabel className="text-[11px]">Email</FormLabel>
                             <FormControl>
-                                <Input disabled type='email' placeholder="my@email.com " {...field} className='bg-slate-50' />
+                                <Input  type='email' placeholder="my@email.com " {...field} className='bg-slate-50' />
                             </FormControl>
                             <FormMessage />
                             </FormItem>
@@ -149,6 +134,20 @@ export default function AccountInformation ({user}: {user: ExtendedUser}) {
                     />
 
                     <FormField
+                        control={form.control}
+                        name="phone"
+                        render={({ field }) => (
+                            <FormItem className="w-full col-span-2">
+                            <FormLabel className="text-[11px]">Phone Number</FormLabel>
+                            <FormControl>
+                                <Input type='tel' disabled readOnly placeholder="phone " {...field} className='bg-slate-50' />
+                            </FormControl>
+                            <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+
+                    {/* <FormField
                         control={form.control}
                         name="gender"
                         render={({ field }) => (
@@ -177,10 +176,10 @@ export default function AccountInformation ({user}: {user: ExtendedUser}) {
                             </FormControl>
                         </FormItem>
                         )}
-                    />
+                    /> */}
                 </div>
 
-                <Button loading={form.formState.isSubmitting} variant={dataChanged ? 'default' : 'outline'} className="self-end w-fit">
+                <Button loading={form.formState.isSubmitting} variant={dataChanged ? 'default' : 'outline'} className="self-end md:w-fit w-full">
                     {dataChanged ? 'Save Changes' : "Updated"}
                 </Button>
             </form>

@@ -2,7 +2,7 @@
 
 import { yupResolver } from "@hookform/resolvers/yup"
 import { useForm, useWatch  } from "react-hook-form"
-import { socialsFormSchema } from "./formSchemas"
+import { socialsFormSchema, SocialsType } from "./formSchemas"
 import yup from 'yup'
 import {
   Form,
@@ -15,17 +15,12 @@ import {
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { updateSocial } from "@/actions/social"
-import { useEffect, useState } from "react"
+import { useCallback, useEffect, useMemo, useState } from "react"
 import useAlert from "@/hooks/useAlert"
 import { isEqual } from "lodash-es";
 
-type SocialProps = {
-    data: any,
-    success: boolean,
-    message: any
-}
 
-export default function SocialsComponent ({socials}: {socials: SocialProps}) {
+export default function SocialsComponent ({socials, title}: {socials: SocialsType, title: string}) {
 
    
     const form = useForm<yup.InferType<typeof socialsFormSchema>>({
@@ -35,47 +30,28 @@ export default function SocialsComponent ({socials}: {socials: SocialProps}) {
       const {setAlert} = useAlert()
       const watchedValues = useWatch({ control: form.control });
     //   
-      const [dataChanged, setDataChanged] = useState(false)
+    const dataChanged = useMemo(() => !isEqual(watchedValues, socials), [watchedValues, socials]);
 
     // ---
-    async function onSubmit(data: yup.InferType<typeof socialsFormSchema>) {
-            if (dataChanged) {
-                const { success, message} = await updateSocial(data)
-                if (!success && message) {
-                    setAlert(message, 'error')
-                }
-                else setAlert('Updated successfuly', 'success')
-                return setDataChanged(false)
-            }
-      }
-      useEffect(() => {
-        const handleGetSocials = async () => {
-            const {data, success, message} = socials
-
-            // Check if socials data exists and update form values
-            if (success && data) {
-                form.setValue('facebook', data.facebook || '')
-                form.setValue('twitter', data.twitter || '')
-                form.setValue('instagram', data.instagram || '')
-                form.setValue('linkedin', data.linkedin || '')
-            }
-            else if (!success && message) {
-                setAlert(message, 'warning')
-            }
+    const onSubmit = useCallback(async (data: yup.InferType<typeof socialsFormSchema>) => {
+        if (dataChanged) {
+          const { success, message } = await updateSocial(data);
+          setAlert(success ? "Updated successfully" : message, success ? "success" : "error");
         }
-
-        handleGetSocials()
-    }, [socials])
-
-    //
-    useEffect(() => {
-    setDataChanged(!isEqual(watchedValues, socials.data));
-    }, [watchedValues, socials.data]);
+      }, [dataChanged, setAlert]);
     //   
+      useEffect(() => {
+        if (socials) {
+          form.reset(socials);
+        } 
+      }, [socials]);
+
+      
 
     return (
         <Form {...form}>
-            <form  onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-4 w-full">
+            <h2 className="text-xs font-semibold capitalize pb-4">{title}</h2>
+            <form  onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col md:gap-4 gap-6 w-full">
                 <FormField
                     control={form.control}
                     name="facebook"
@@ -129,7 +105,7 @@ export default function SocialsComponent ({socials}: {socials: SocialProps}) {
                     )}
                 />
 
-                <Button loading={form.formState.isSubmitting} variant={dataChanged ? 'default' : 'outline'} className="self-end w-fit">
+                <Button loading={form.formState.isSubmitting} variant={dataChanged ? 'default' : 'outline'} className="self-end md:w-fit w-full">
                     {dataChanged ? 'Save Changes' : "Updated"}
                 </Button>
             </form>

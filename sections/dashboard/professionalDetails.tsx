@@ -22,7 +22,7 @@ import { useEffect, useState } from "react";
 import { isEqual } from "lodash-es";
 import { updateProfessionalDetail } from "@/actions/professional";
 
-export default function ProfessionalDetails({details}: {details: ProfessionalDetailType}) {
+export default function ProfessionalDetails({details, title}: {details: ProfessionalDetailType, title: string}) {
 
     const {setAlert} = useAlert()
     const form = useForm<yup.InferType<typeof professionalDetailsSchema>>({
@@ -46,18 +46,9 @@ export default function ProfessionalDetails({details}: {details: ProfessionalDet
         }
         // 
         useEffect(() => {
-            const handleSetUser = async () => {
-              if (details) {
-                form.setValue("address", details?.address || "");
-                form.setValue("agency", details?.agency || "");
-                form.setValue("bio", details?.bio || "");
-                form.setValue("experience", details?.experience || "");
-                form.setValue("license", details?.license || "");
-                form.setValue("specialization", details?.specialization || "");
-              }
-            }
-          
-            handleSetUser();
+            if (details) {
+              form.reset(details);
+            } 
           }, [details]);
           
           useEffect(() => {
@@ -67,6 +58,7 @@ export default function ProfessionalDetails({details}: {details: ProfessionalDet
 
     return (
         <Form {...form}>
+        <h2 className="text-xs font-semibold capitalize md:pb-5 pb-6">{title}</h2>
         <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-5 ">
 
              <FormField
@@ -161,7 +153,7 @@ export default function ProfessionalDetails({details}: {details: ProfessionalDet
 
             <FormField
                 control={form.control}
-                name="license"
+                name="agency"
                 render={({ field }) => (
                     <FormItem>
                         <FormLabel className="text-[11px]">Agency Affiliation <span className="text-[10px] text-muted-foreground">{"(optional)"}</span></FormLabel>
@@ -187,7 +179,7 @@ export default function ProfessionalDetails({details}: {details: ProfessionalDet
                 )}
             />
 
-                <Button loading={form.formState.isSubmitting} variant={dataChanged ? 'default' : 'outline'} className="self-end w-fit">
+                <Button loading={form.formState.isSubmitting} variant={dataChanged ? 'default' : 'outline'} className="self-end md:w-fit w-full">
                     {dataChanged ? 'Save Changes' : "Updated"}
                 </Button>
         </form>

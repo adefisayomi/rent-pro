@@ -15,13 +15,15 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { changePasswordFormSchema } from "@/sections/dashboard/formSchemas"
 import useAlert from "@/hooks/useAlert"
+import useAuthStore from "@/contexts/useAuth"
 
 
 
 
-export default function ChangePassword () {
+export default function ChangePassword ({title}: {title: string}) {
 
     const {setAlert} = useAlert()
+    const {user} = useAuthStore()
     const form = useForm<yup.InferType<typeof changePasswordFormSchema>>({
         resolver: yupResolver(changePasswordFormSchema),
         defaultValues: {oldPassword: '', password: '', confirmPassword: ''}
@@ -34,6 +36,7 @@ export default function ChangePassword () {
     
     return (
     <Form {...form}>
+        <h2 className="text-xs font-semibold capitalize pb-2">{title}</h2>
             <form  onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-4 w-full">
                 <FormField
                     control={form.control}

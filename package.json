@@ -36,6 +36,8 @@
     "email-validator": "^2.0.4",
     "embla-carousel-autoplay": "^8.5.2",
     "embla-carousel-react": "^8.5.2",
+    "firebase": "^11.4.0",
+    "firebase-admin": "^13.2.0",
     "formidable": "^3.5.2",
     "framer-motion": "^12.4.10",
     "google-map-react": "^2.2.1",

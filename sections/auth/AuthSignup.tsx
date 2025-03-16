@@ -17,9 +17,8 @@ import { useState } from "react"
 import { Checkbox } from "@/components/ui/checkbox"
 import Routes from "@/Routes"
 import Link from "next/link"
-import { useActionState } from 'react';
-import { authenticateWithEmail } from "@/actions/auth"
-import useAlert from "@/hooks/useAlert"
+import useAuthStore from "@/contexts/useAuth"
+import { redirect } from "next/navigation"
 
 
 type SignupRenterFormData = yup.InferType<typeof signinSchema>;
@@ -27,7 +26,6 @@ type SignupRenterFormData = yup.InferType<typeof signinSchema>;
 export default function SignupForm () {
 
     const [viewPass, setViewPass] = useState(false)
-    const {setAlert} = useAlert()
     const form = useForm<SignupRenterFormData>({
       resolver: yupResolver(signinSchema),
       defaultValues: {
@@ -35,17 +33,14 @@ export default function SignupForm () {
         password: '',
       },
     });
-    const [errorMessage, formAction, isPending] = useActionState(
-      authenticateWithEmail,
-      undefined,
-    );
+    const {signinWithEmail, loading} = useAuthStore()
     
   
   
     const onSubmit = async (data: SignupRenterFormData) => {
-      await formAction(data)
-      if (errorMessage) {
-        return setAlert(errorMessage, 'error')
+      const res = await signinWithEmail(data.email, data.password)
+      if (res.success && res.redirectUrl) {
+          return redirect(res.redirectUrl)
       }
     };
 
@@ -97,7 +92,7 @@ export default function SignupForm () {
                         <Link href={Routes.resetPassword} className="text-primary text-xs font-medium hover:underline">Forgot Password?</Link>
                     </div>
 
-                    <Button loading={form.formState.isSubmitting} className=" mt-4" size='lg'>
+                    <Button disabled={loading} loading={loading} className=" mt-4" size='lg'>
                         Continue
                     </Button>
                 </form>
