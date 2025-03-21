@@ -1,6 +1,6 @@
 import { initializeApp, getApps, getApp } from "firebase/app";
 import { getStorage } from 'firebase/storage';
-import { getFirestore } from 'firebase/firestore';
+import { getFirestore, collection, query, where, orderBy, getDocs } from 'firebase/firestore';
 import { GoogleAuthProvider, getAuth, FacebookAuthProvider } from "firebase/auth";
 
 
@@ -26,3 +26,19 @@ export { app, storage, db, auth, googleProvider, facebookProvider};
 
 export const resume_data_key = 'resume-data'
 export const images_key = 'profile_images'
+export const NotificationLogKey = 'userLogs'
+
+
+export const fetchUserLogs = async (userId: string) => {
+  if (!userId) return [];
+
+  const logsRef = collection(db, NotificationLogKey); // Collection name
+  const logsQuery = query(
+    logsRef,
+    where("userId", "==", userId), // Fetch logs only for this user
+    orderBy("timestamp", "desc")  // Order by latest logs first
+  );
+
+  const logsSnapshot = await getDocs(logsQuery);
+  return logsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+};

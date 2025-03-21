@@ -18,13 +18,16 @@ import { Checkbox } from "@/components/ui/checkbox"
 import Routes from "@/Routes"
 import Link from "next/link"
 import useAuthStore from "@/contexts/useAuth"
-import { redirect } from "next/navigation"
+import { redirect, useRouter } from "next/navigation"
+import useAlert from "@/hooks/useAlert"
 
 
 type SignupRenterFormData = yup.InferType<typeof signinSchema>;
 
 export default function SignupForm () {
 
+  const {setAlert} = useAlert()
+  const router = useRouter()
     const [viewPass, setViewPass] = useState(false)
     const form = useForm<SignupRenterFormData>({
       resolver: yupResolver(signinSchema),
@@ -33,14 +36,13 @@ export default function SignupForm () {
         password: '',
       },
     });
-    const {signinWithEmail, loading} = useAuthStore()
-    
+    const {signinWithEmail, loading, user} = useAuthStore()
   
-  
+
     const onSubmit = async (data: SignupRenterFormData) => {
-      const res = await signinWithEmail(data.email, data.password)
+      const res = await signinWithEmail(data.email, data.password, setAlert)
       if (res.success && res.redirectUrl) {
-          return redirect(res.redirectUrl)
+          return router.replace(res.redirectUrl)
       }
     };
 

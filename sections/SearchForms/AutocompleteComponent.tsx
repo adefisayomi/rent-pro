@@ -1,13 +1,18 @@
+"use client"
+
 import { Input } from "@/components/ui/input";
 import useAutocomplete from "@/hooks/useAutocomplete";
+import { cn } from "@/lib/utils";
 import React, { useState, useRef, useEffect, useCallback } from "react";
 
 interface AutocompleteProps {
   setLocation?: (location: any) => void;
+  className?: string;
+  simple?: boolean
 }
 
-const AutocompleteComponent: React.FC<AutocompleteProps> = ({ setLocation }) => {
-  const { query, setQuery, results, loading, error } = useAutocomplete();
+const AutocompleteComponent: React.FC<AutocompleteProps> = ({ setLocation, className, simple }) => {
+  const { query, setQuery, results, loading, error } = useAutocomplete(simple);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [highlightedIndex, setHighlightedIndex] = useState<number | null>(null);
   const wrapperRef = useRef<HTMLDivElement>(null);
@@ -76,7 +81,7 @@ const AutocompleteComponent: React.FC<AutocompleteProps> = ({ setLocation }) => 
     <div className="w-full relative" ref={wrapperRef}>
       <Input
         placeholder="Enter a state, locality, or area"
-        className="bg-white h-9 text-muted-foreground lowercase"
+        className={cn("bg-white h-9 text-muted-foreground lowercase", className)}
         type="text"
         value={query}
         onChange={handleChange}
@@ -89,7 +94,7 @@ const AutocompleteComponent: React.FC<AutocompleteProps> = ({ setLocation }) => 
               className={`p-2 text-xs lowercase text-muted-foreground bg-slate-50 border-b cursor-pointer hover:bg-muted transition ${
                 highlightedIndex === index ? "bg-muted" : ""
               }`}
-              key={result.place_id || index}
+              key={index}
               onClick={() => handleSetQuery(result)}
               onMouseEnter={() => setHighlightedIndex(index)}
             >

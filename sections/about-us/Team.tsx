@@ -10,7 +10,7 @@ export default function Team () {
         <div className="w-full px-4 py-8 md:py-20 max-w-8xl mx-auto flex flex-col gap-12 items-center">
             <div className='flex flex-col items-center gap-3 max-w-md '>
                 <h4 className="text-primary uppercase text-xs font-medium">property partners</h4>
-                <h1 className="text-2xl md:text-4xl capitalize font-semibold text-start">meet our expert agents</h1>
+                <h1 className="text-2xl md:text-4xl capitalize font-semibold text-start">meet the team</h1>
             </div>
 
             <div className="w-full grid grid-cols-1 md:grid-cols-5 sm:grid-cols-2 gap-6">
@@ -32,7 +32,7 @@ export default function Team () {
 
 const TeamCard = ({ image, role, name }: {image: string, name: string, role: string}) => {
     return (
-       <div className="w-full max-w-sm p-1 flex flex-col border border-primary/50 gap-3 hover:scale-105 rounded-2xl pb-6 duration-300">
+       <div className="w-full p-1 flex flex-col border border-primary/50 gap-3 hover:scale-105 rounded-2xl pb-6 duration-300">
            <img src={image} alt={name} className="rounded-2xl aspect-square object-cover flex  " />
            <div className="w-full flex items-center flex-col gap-1">
                 <p className="capitalize font-medium text-xs">{name}</p>
@@ -40,10 +40,18 @@ const TeamCard = ({ image, role, name }: {image: string, name: string, role: str
            </div>
 
            <div className="flex items-center gap-2 w-full justify-center">
-            <Facebook className="text-primary   rounded-lg p-1  w-8 border"  />
-            <Twitter className="text-primary   rounded-lg p-1  w-8 border"  />
-            <Instagram className="text-primary   rounded-lg p-1  w-8 border"  />
-            <Linkedin className="text-primary   rounded-lg p-1  w-8 border"  />
+            <Button size='icon'>
+              <Facebook className="w-5"  />
+            </Button>
+            <Button size='icon'>
+              <Twitter className="w-5"  />
+            </Button>
+            <Button size='icon'>
+              <Instagram className="w-5"  />
+            </Button>
+            <Button size='icon'>
+              <Linkedin className="w-5"  />
+            </Button>
         </div>
        </div>
     );
@@ -53,33 +61,33 @@ const TeamCard = ({ image, role, name }: {image: string, name: string, role: str
   const _teams = [
     {
       id: 1,
-      name: "Emma Johnson",
-      role: "Chief Executive Officer",
-      image: "https://randomuser.me/api/portraits/women/45.jpg",
+      name: "Olaniyi Seyi",
+      role: "Public Relation",
+      image: "https://firebasestorage.googleapis.com/v0/b/rent-house-a2c71.appspot.com/o/team%2FScreenshot%20(36).png?alt=media&token=60229562-8a70-4149-8678-d2154bb7989a",
     },
     {
       id: 2,
-      name: "Liam Smith",
-      role: "Head of Operations",
-      image: "https://randomuser.me/api/portraits/men/35.jpg",
+      name: "Mr Kazeem",
+      role: "Head of Design",
+      image: "https://firebasestorage.googleapis.com/v0/b/rent-house-a2c71.appspot.com/o/team%2FScreenshot%20(42).png?alt=media&token=be4ed3a6-49f3-4817-b62e-591ee78d4f9b",
     },
     {
       id: 3,
-      name: "Olivia Brown",
-      role: "Marketing Director",
-      image: "https://randomuser.me/api/portraits/women/50.jpg",
+      name: "Mr chucks",
+      role: "Quality Assurance",
+      image: "https://firebasestorage.googleapis.com/v0/b/rent-house-a2c71.appspot.com/o/team%2FScreenshot%20(41).png?alt=media&token=0b81a629-fdd3-4012-8eb4-d65945b47c55",
     },
     {
       id: 4,
-      name: "Noah Williams",
-      role: "Lead Developer",
-      image: "https://randomuser.me/api/portraits/men/40.jpg",
+      name: "Wale Fatoke",
+      role: "Chief operating officer",
+      image: "https://firebasestorage.googleapis.com/v0/b/rent-house-a2c71.appspot.com/o/team%2FScreenshot%20(35).png?alt=media&token=67d82f8c-e3b7-4342-a652-2606edc66804",
     },
     {
       id: 5,
-      name: "Sophia Davis",
-      role: "Human Resources Manager",
-      image: "https://randomuser.me/api/portraits/women/33.jpg",
+      name: "Abigail Ekpeyoung",
+      role: "Product manager",
+      image: "https://img.freepik.com/premium-vector/cute-ghost-doodle-style-halloween-isolated-orange-background-vector-illustration_112545-3512.jpg",
     },
   ];
   

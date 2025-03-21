@@ -3,6 +3,9 @@
 import { auth_token, errorMessage } from "@/constants";
 import { cookies } from 'next/headers'
 import { adminAuth } from "@/utils/firebaseAdmin";
+import { extractAllowedKeys } from "@/utils/extractAllowedKeys";
+import { revalidatePath } from "next/cache";
+import Routes from "@/Routes";
 
 
 export const currUser = async () => {
@@ -64,3 +67,38 @@ export async function deleteSessionCookie() {
     return { success: false, message: err.message };
   }
 }
+
+export const setCustomUserClaims = async (claims: {accountType: 'renter'  | 'agent'}) => {
+  try {
+    const { data: user, message, success } = await currUser();
+    if (!success || !user?.uid) throw new Error(message || "Unauthorized request");
+    // 
+    const data = extractAllowedKeys<typeof claims>(claims, ["accountType"]);
+    await adminAuth.setCustomUserClaims(user.uid, data);
+
+    revalidatePath(Routes.dashboard["account management"]["account information"])
+    return ({
+      success: true,
+      message: 'claims set',
+      data: null
+    }) 
+  } catch (error: any) {
+    return errorMessage(error.message)
+  }
+};
+
+export const getCustomClaims = async () => {
+  try {
+    const { data: user, message, success } = await currUser();
+    if (!success || !user?.uid) throw new Error(message || "Unauthorized request");
+    //
+    const claim = await adminAuth.getUser(user.uid);
+    return ({
+      success: true,
+      message: 'claims set',
+      data: claim.customClaims
+    }) 
+  } catch (error: any) {
+    return errorMessage(error.message)
+  }
+};

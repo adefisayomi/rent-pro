@@ -13,8 +13,8 @@ export default function SearchBar () {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant="ghost" className="rounded-[8px] bg-muted" size='icon'>
-            <Search className="w-5"/>
+        <Button variant="ghost" className="rounded-[8px] w-10 h-10 bg-muted" size='icon'>
+            <Search className="w-6"/>
         </Button>
       </DialogTrigger>
 

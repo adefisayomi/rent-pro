@@ -31,7 +31,7 @@ const ContactInfo = () => (
   <div className="flex flex-col items-start gap-4  w-full border rounded-2xl md:max-w-md px-3 md:p-10 py-8 bg-white">
     <div className="flex flex-col gap-2 items-start border-b pb-5 w-full">
         <h4 className="text-xs uppercase font-medium text-primary text-center">to know more about our properties</h4>
-        <h1 className="text-xl capitalize font-semibold text-center text-slate-900">reach out to us</h1>
+        <h1 className="text-xl capitalize font-semibold text-center text-slate-900">reach us</h1>
     </div>
     
 

@@ -4,6 +4,7 @@ import { auth_token } from '@/constants';
 export default async function middleware (req: NextRequest) {
 
   const token = req.cookies.get(auth_token) || null;
+  const isAgent = req.cookies.get('accountType')?.value === 'agent';
   const { pathname } = req.nextUrl;
 
   // If there is no token and the user is on the dashboard page, redirect to the auth page
@@ -13,6 +14,9 @@ export default async function middleware (req: NextRequest) {
 
    // If there is a token, verify it
    if (token) {
+    if (!isAgent && pathname.includes('tools')) {
+      return NextResponse.redirect(new URL('/', req.url));
+    }
     try {
       // If the user is on the auth page, redirect to the dashboard page
       if (pathname.startsWith('/signin')) {

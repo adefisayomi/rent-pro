@@ -10,15 +10,16 @@ interface CustomLayoutProps {
   children: ReactNode;
   bgImage: string;
   component?: ReactNode;
-  showCrumbs?: boolean
+  showCrumbs?: boolean;
+  className?: string;
 }
 
-export default function LayoutWithImageHeader({ title, children, bgImage, component, showCrumbs=true }: CustomLayoutProps) {
+export default function LayoutWithImageHeader({ title, children, bgImage, component, showCrumbs=true, className }: CustomLayoutProps) {
   return (
     <BaseLayout>
       <div className="w-full h-full min-h-screen flex flex-col">
         <div
-          className={cn("w-full flex items-center justify-center h-72 md:h-[300px] flex-col gap-4 relative bg-cover bg-center", !title && 'md:h-[250px]')}
+          className={cn("w-full flex items-center justify-center h-72 md:h-[300px] flex-col gap-4 relative bg-cover bg-center", !title && 'md:h-[250px]', className)}
           style={{
             backgroundImage: `url(${bgImage})`,
             backgroundSize: "cover",

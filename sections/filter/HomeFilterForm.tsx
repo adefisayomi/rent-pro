@@ -1,3 +1,5 @@
+"use client"
+
 import { _amenities, _propertyTypes, _securities } from "@/_data/images"
   import { Button } from "@/components/ui/button"
 import { useForm } from "react-hook-form"

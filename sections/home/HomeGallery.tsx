@@ -1,13 +1,14 @@
 "use client"
 
 import { Button } from "@/components/ui/button"
+import { useRouter } from "next/navigation"
 
 
 type ImagesProps = {
     images: string[]
 }
 export default function HomeGallery ({images}: ImagesProps) {
-
+    const router = useRouter()
     return (
         <div className="w-full bg-white">
         <div className="w-full px-4 py-8 md:py-20 max-w-8xl mx-auto md:h-screen">
@@ -17,7 +18,7 @@ export default function HomeGallery ({images}: ImagesProps) {
                     <h4 className="text-primary uppercase text-xs font-medium">mervelous world</h4>
                     <h1 className="text-2xl md:text-4xl capitalize font-bold text-start">Image Speaks <br /> Volume: Explore the <br /> Our Gallery.</h1>
                     <p className="text-xs text-muted-foreground">Lorem ipsum dolor sit  molestiae delectus, iste velit ad quidem perferendis.</p>
-                    <Button className="w-full max-w-[150px] text-xs md:h-12">
+                    <Button onClick={() => router.push("/gallery")} className="w-full max-w-[150px] text-xs md:h-12">
                         View all photo
                     </Button>
                 </div>

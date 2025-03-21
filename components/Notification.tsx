@@ -1,10 +1,11 @@
 "use client";
 
 import { Bell, BellOff, X } from "lucide-react";
-import { memo } from "react";
+import { memo, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { NotificationType, useNotificationStore } from "@/contexts/notificationStore";
+import useAuthStore from "@/contexts/useAuth";
 
 // Component for no notifications
 const NoNotification = memo(() => (
@@ -19,13 +20,23 @@ const NoNotification = memo(() => (
 NoNotification.displayName = "NoNotification";
 
 export default function Notification() {
-  const { notifications, removeNotification } = useNotificationStore();
+  
+  const { user } = useAuthStore();
+  const { notifications, fetchUserLogs, removeNotification } = useNotificationStore();
+
+  // useEffect(() => {
+  //   if (user?.uid) {
+  //     fetchUserLogs(user.uid);
+  //   }
+  // }, [user?.uid, fetchUserLogs]);
+
+
 
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <Button variant="ghost" size="sm" className="w-fit flex p-2 relative items-center justify-center">
-          <Bell className="w-[18px]" />
+        <Button variant="ghost" size='icon' className=" w-10 h-10 relative">
+          <Bell className="w-6" />
           {notifications.length > 0 && (
             <span className="w-2 h-2 rounded-full bg-primary absolute top-0 right-[2px] flex items-center justify-center" />
           )}

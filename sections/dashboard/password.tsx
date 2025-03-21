@@ -16,6 +16,8 @@ import { Button } from "@/components/ui/button"
 import { changePasswordFormSchema } from "@/sections/dashboard/formSchemas"
 import useAlert from "@/hooks/useAlert"
 import useAuthStore from "@/contexts/useAuth"
+import {EmailAuthProvider, updatePassword, reauthenticateWithCredential, User} from 'firebase/auth'
+
 
 
 
@@ -31,13 +33,25 @@ export default function ChangePassword ({title}: {title: string}) {
 
     // ---
     async function onSubmit(data: yup.InferType<typeof changePasswordFormSchema>) {
-        
+            try {
+                const credential = EmailAuthProvider.credential(user?.email!, data.oldPassword);
+                await reauthenticateWithCredential(user as User, credential);
+
+                // Update password
+                await updatePassword(user as User, data.password);
+
+                setAlert("Password updated successfully!", "success");
+                form.reset();
+            }
+            catch(err: any) {
+                return setAlert(err.message, 'error')
+            }
       }
     
     return (
     <Form {...form}>
-        <h2 className="text-xs font-semibold capitalize pb-2">{title}</h2>
-            <form  onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-4 w-full">
+        <h2 className="text-xs font-semibold capitalize pb-4">{title}</h2>
+            <form  onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-5 w-full">
                 <FormField
                     control={form.control}
                     name="oldPassword"

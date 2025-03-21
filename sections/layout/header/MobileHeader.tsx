@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Logo from "@/components/Logo";
 import SearchBar from "./searchBar";
-import { Dot, LoaderCircle, Menu, X } from "lucide-react";
+import { Dot, LoaderCircle, Menu, Wrench, X } from "lucide-react";
 import { navConfig } from "./navConfig";
 import Link from "next/link";
 import UserMenu from "./userMenu";
@@ -59,7 +59,7 @@ export default function MobileHeader() {
 
   return (
     <div
-      className={`w-full grid grid-cols-3 px-2 min-h-16 py-4 shadow-sm z-50 bg-background/50 backdrop-blur-md transition-all duration-300 
+      className={`w-full h-full grid grid-cols-3 px-2 min-h-16 py-4 shadow-sm z-50 bg-background/50 backdrop-blur-md transition-all duration-300 
         ${isSticky ? "sticky top-0 left-0" : "static top-0 left-0"}`}
     >
       <div className="flex items-center justify-start">
@@ -74,8 +74,8 @@ export default function MobileHeader() {
         <Sheet onOpenChange={setOpen} open={open}>
           <SheetTrigger asChild>
             {user ? (
-              <Avatar className="border-2 cursor-pointer w-9 h-9 flex items-center justify-center">
-                <AvatarImage className="w-full h-full object-cover" src={user?.photoURL || ""} />
+              <Avatar className="border-2 border-primary p-[2px] cursor-pointer w-11 h-11 flex items-center justify-center">
+                <AvatarImage className="w-full h-full object-cover rounded-full" src={user?.photoURL || ""} />
                 <AvatarFallback className="uppercase text-sm">
                   {user?.displayName?.slice(0, 2) || user?.email?.slice(0, 2)}
                 </AvatarFallback>
@@ -97,21 +97,27 @@ export default function MobileHeader() {
               </SheetDescription>
             </SheetHeader>
             <div className="flex items-start flex-col w-full overflow-y-auto">
+              
               {navConfig.map((nav, index) => (
                 <Link
                   key={index}
                   href={nav.href}
+                  onClick={() => setOpen(false)}
                   className="w-full hover:bg-slate-100 text-gray-700 p-4 border-b capitalize hover:uppercase hover:text-primary duration-300"
                 >
                   <p className="w-full font-semibold text-xs ">{nav.title}</p>
                 </Link>
               ))}
 
-            <DashboardNav setOpen={setOpen}/>
+            {user && <DashboardNav setOpen={setOpen}/>}
             </div>
 
             <SheetFooter>
               <UserMenu />
+
+              <div className="w-full flex items-center justify-center border-t p-4 rounded-b-md mt-4">
+                <p className="text-[10px] cursor-default text-muted-foreground">RentHouse &copy; 2024 All Right Reserved.</p>
+              </div>
             </SheetFooter>
           </SheetContent>
         </Sheet>
@@ -124,6 +130,7 @@ export default function MobileHeader() {
 
 export function DashboardNav({ setOpen }: { setOpen: Function }) {
   const router = useRouter();
+  const {claims} = useAuthStore()
 
   const handleNavigation = (path: string) => {
     router.push(path); // Navigate first
@@ -132,10 +139,16 @@ export function DashboardNav({ setOpen }: { setOpen: Function }) {
 
   return (
     <Accordion type="multiple" className="w-full gap-0">
-      {Object.entries(Routes.dashboard).map(([section, items], index) => (
-        <div key={index} className="w-full">
+      <div className="h-12 px-4 flex items-center gap-2 bg-muted border-b border-primary">
+        <h2 className="text-xs text-gray-600 font-semibold uppercase">Dashboard</h2>
+        <Wrench className="w-4 text-primary" />
+      </div>
+
+      {Object.entries(Routes.dashboard).map(([section, items], index) => {
+         if (section === "professional tools" && claims?.accountType !== "agent") return null;
+        return (<div key={index} className="w-full">
           <AccordionItem value={section}>
-            <AccordionTrigger className="w-full font-semibold text-xs rounded-none hover:bg-slate-100 text-gray-700 p-4 border-b uppercase">
+            <AccordionTrigger className="w-full font-medium text-[11px] rounded-none hover:no-underline hover:bg-slate-100 text-gray-700 p-4 pl-6 border-b capitalize">
               {section}
             </AccordionTrigger>
 
@@ -143,22 +156,22 @@ export function DashboardNav({ setOpen }: { setOpen: Function }) {
               {typeof items === "string" ? (
                 <div onClick={() => handleNavigation(items)}>
                   <div className="w-full hover:border-primary border-b p-4 h-[45px] text-muted-foreground flex items-center duration-100 hover:text-primary cursor-pointer">
-                    <p className="text-[11px] font-medium capitalize">{section}</p>
+                    <p className="text-[11px] font-medium capitalize pl-6">{section}</p>
                   </div>
                 </div>
               ) : (
                 Object.entries(items).map(([label, path], subIndex) => (
                   <div key={subIndex} onClick={() => handleNavigation(path)}>
                     <div className="w-full hover:border-primary text-muted-foreground duration-100 border-b p-4 h-[45px] flex items-center hover:text-primary cursor-pointer">
-                      <p className="text-[11px] font-medium capitalize">{label}</p>
+                      <p className="text-[11px] font-medium capitalize pl-6">{label}</p>
                     </div>
                   </div>
                 ))
               )}
             </AccordionContent>
           </AccordionItem>
-        </div>
-      ))}
+        </div>)
+     })}
     </Accordion>
   );
 }

@@ -15,3 +15,7 @@ export const userKey = 'users'
 export const socialKey = 'socials'
 export const professionalKey = 'professionalDetails'
 export const notificationKey = 'notifications'
+export const propertyKey = 'property'
+export const favouritesKey = 'favourites'
+
+export const NEXT_PUBLIC_BASE_URL = process.env.NODE_ENV === 'development' ? 'http://localhost:3000' : 'https://rent-pro-virid.vercel.app'

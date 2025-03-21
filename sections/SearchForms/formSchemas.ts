@@ -2,7 +2,7 @@ import * as yup from 'yup'
 
 export const propertySearchSchema = yup.object().shape({
       type: yup.string(),
-      location: yup.object(),
+      location: yup.object().shape<any>({}).optional(),
       minPrice: yup
         .string(),
       maxPrice: yup

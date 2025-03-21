@@ -75,3 +75,121 @@ export const _specializationOptions = [
   "Real Estate Development",
   "Foreclosure and Short Sales",
 ] as const;
+
+export const _listedIn = [
+  "all",
+  "rent",
+  "buy",
+  "short-let",
+]
+
+export const _status = [
+  "active",
+  "hot offer",
+  "new offer",
+  "not active",
+  "sold"
+]
+
+export const _africanCountries = {
+  nigeria: [
+    "Abia", "Adamawa", "Akwa Ibom", "Anambra", "Bauchi", "Bayelsa", "Benue", "Borno", 
+    "Cross River", "Delta", "Ebonyi", "Edo", "Ekiti", "Enugu", "Gombe", "Imo", "Jigawa", 
+    "Kaduna", "Kano", "Katsina", "Kebbi", "Kogi", "Kwara", "Lagos", "Nasarawa", "Niger", 
+    "Ogun", "Ondo", "Osun", "Oyo", "Plateau", "Rivers", "Sokoto", "Taraba", "Yobe", "Zamfara", 
+    "FCT (Federal Capital Territory)"
+  ],
+  southAfrica: ["Gauteng", "Western Cape", "KwaZulu-Natal", "Eastern Cape", "Free State", "Limpopo", "Mpumalanga"],
+  egypt: ["Cairo", "Giza", "Alexandria", "Aswan", "Luxor", "Suez", "Ismailia", "Port Said"],
+  kenya: ["Nairobi", "Mombasa", "Kisumu", "Nakuru", "Eldoret", "Thika", "Malindi"],
+  ghana: ["Greater Accra", "Ashanti", "Western", "Eastern", "Northern", "Volta", "Central", "Upper East", "Upper West"],
+  ethiopia: ["Addis Ababa", "Oromia", "Amhara", "Sidama", "Tigray", "Gambela", "Somali"],
+  morocco: ["Casablanca-Settat", "Rabat-Salé-Kénitra", "Marrakech-Safi", "Fès-Meknès", "Tangier-Tetouan-Al Hoceima"],
+  tanzania: ["Dar es Salaam", "Dodoma", "Mwanza", "Arusha", "Mbeya", "Morogoro", "Tanga"],
+  algeria: ["Algiers", "Oran", "Constantine", "Annaba", "Blida", "Tlemcen", "Batna"],
+  uganda: ["Kampala", "Wakiso", "Gulu", "Mbarara", "Jinja", "Mbale", "Fort Portal"],
+};
+
+
+export const _generalAmenities = {
+  general: {
+    label: 'general amenities',
+    list: [
+      "Air Conditioning",
+      "Wi-Fi",
+      "Parking",
+      "Swimming Pool",
+      "Refrigerator",
+      "Laundry",
+      "TV Cable",
+      "Barbeque",
+      "Fireplace",
+      "Microwave",
+    ]
+  },
+  indoor: {
+    label: 'indoor features',
+    list: [
+      "Indoor Features",
+      "Ensuite",
+      "Study",
+      "Rumpus Room",
+      "Built-in Robes",
+      "Dishwasher",
+      "Alarm System",
+      "Floorboards",
+      "Gym",
+      "Broadband",
+      "Projector Room",
+      "Elevator",
+      "Ceiling Height",
+    ]
+  },
+ outdoor: {
+  label: 'outdoor features',
+  list: [
+    "Balcony",
+    "Backyard",
+    "Front Yard",
+    "Garden",
+    "Outdoor Area",
+    "Outdoor Shower",
+    "Outdoor Spa",
+    "Fully Fenced",
+    "Shed",
+    "Tennis Court",
+ ]
+ },
+ climate: {
+  label: 'climate control & energy',
+  list: [
+    "Heating",
+    "Water Tank",
+    "Solar Panels",
+    "Solar Hot Water",
+    "Dust Filter",
+    "Electric Stove System",
+ ]
+ },
+ special: {
+  label: 'special features',
+  list: [
+    "Special Features",
+    "Pet Friendly",
+    "Disabled Access",
+    "Lake View",
+    "School",
+    "Transportation Hub",
+    "Supermarket",
+    "Clinic"
+ ]
+ }
+}
+
+export const _favouriteSort = [
+  "newest",
+  "best seller",
+  "best match",
+  "price low",
+  "price high",
+]

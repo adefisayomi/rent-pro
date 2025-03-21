@@ -11,6 +11,7 @@ import { useEffect, useState } from "react"
 import Notifications from "./notifications"
 import ProfessionalDetails from "./professionalDetails"
 import Plan from "./Plan"
+import AddNewProperty from "./AddProperty"
 
 type DataProps = {
     socials: SocialsType,
@@ -42,8 +43,11 @@ export default function Dashboard ({props}: {props: DataProps}) {
         case Routes.dashboard["account management"]["social profile"].toLowerCase() :
             return <SocialsComponent socials={socials!} title={activePageTitle!}/>
 
-        case Routes.dashboard["account management"]["password"].toLowerCase() && passwordResetActive :
-            return <ChangePassword title={activePageTitle!}/>
+        case Routes.dashboard["account management"]["password"].toLowerCase() :
+            if (passwordResetActive) {
+                return <ChangePassword title={activePageTitle!} />;
+            }
+            break;
 
         case Routes.dashboard["professional tools"]["professional details"].toLowerCase() :
             return <ProfessionalDetails details={details} title={activePageTitle!}/>
@@ -53,6 +57,9 @@ export default function Dashboard ({props}: {props: DataProps}) {
 
         case Routes.dashboard["professional tools"]["my plan"].toLowerCase() :
             return <Plan title={activePageTitle!}/>
+
+        case Routes.dashboard["professional tools"]["add new properties"].toLowerCase() :
+            return <AddNewProperty />
 
         default :
             return <InvalidPage/>

@@ -17,12 +17,14 @@ import {
 } from "@/components/ui/toggle-group"
 import DropDownComp from "@/components/DropdownComp";
 import { _propertyTypes } from "@/_data/images";
+import { useRouter } from "next/navigation";
 
 
 
 export function HomeSearchBox() {
 
   const isDesktop = useResponsive() === "desktop";
+  const router = useRouter()
 
   const [savedFormValues, setSavedFormValues] = useLocalStorage("propertySearchForm", {
     minPrice: "no min",
@@ -56,7 +58,27 @@ export function HomeSearchBox() {
   }, [form.watch, setSavedFormValues]);
 
   function onSubmit(data: yup.InferType<typeof propertySearchSchema>) {
-    console.log("Submitted Data:", data);
+    const query = {
+      min: data.minPrice,
+      max: data.maxPrice,
+      type: data.type,
+      address: data.location?.display_address,
+      country: data.location?.address?.country,
+      state: data.location?.address?.state,
+      city: data.location?.address?.county,
+      lon: data.location?.lon,
+      lat: data.location?.lat,
+      bedrooms: data.bedrooms,
+      propertyType: data.propertyType
+    }
+    const filteredQuery = Object.fromEntries(
+      Object.entries(query).filter(([_, v]) => v !== undefined && v !== null)
+    );
+    
+    // Convert to query string
+    const queryString = new URLSearchParams(filteredQuery).toString();
+    
+    router.push(`/listings?${queryString}`);
   }
 
   return (
@@ -135,33 +157,34 @@ export function HomeSearchBox() {
         />
 
         <div className="w-full flex items-center gap-2 col-span-2">
-          <FormField
-            control={form.control}
-            name="minPrice"
-            render={({ field }) => (
-              <FormItem className="w-full">
-                <FormControl>
-                  <DropDownComp
-                    title={field.value!}
-                    component={
-                      <div className="flex w-full flex-col gap-2 items-start">
-                        {_priceList.map((price, index) => (
-                          <Button
-                            onClick={() => field.onChange(price.label)}
-                            variant="ghost"
-                            key={index}
-                            className="text-xs capitalize"
-                          >
-                            {price.label}
-                          </Button>
-                        ))}
-                      </div>
-                    }
-                  />
-                </FormControl>
-              </FormItem>
-            )}
-          />
+        <FormField
+          control={form.control}
+          name="minPrice"
+          render={({ field }) => (
+            <FormItem className="w-full">
+              <FormControl>
+                <DropDownComp
+                  title={_priceList.find((p) => p.value === Number(field.value))?.label || "Min Price"}
+                  component={
+                    <div className="flex w-full flex-col gap-2 items-start">
+                      {_priceList.map((price, index) => (
+                        <Button
+                          onClick={() => field.onChange(price.value)}
+                          variant="ghost"
+                          key={index}
+                          className="text-xs capitalize"
+                        >
+                          {price.label}
+                        </Button>
+                      ))}
+                    </div>
+                  }
+                />
+              </FormControl>
+            </FormItem>
+          )}
+        />
+
           <p className="text-background">-</p>
           <FormField
             control={form.control}
@@ -170,12 +193,12 @@ export function HomeSearchBox() {
               <FormItem className="w-full">
                 <FormControl>
                   <DropDownComp
-                    title={field.value!}
+                    title={_priceList.find((p) => p.value === Number(field.value))?.label || "Max Price"}
                     component={
                       <div className="flex w-full flex-col gap-2 items-start">
                         {_priceList.map((price, index) => (
                           <Button
-                            onClick={() => field.onChange(price.label)}
+                            onClick={() => field.onChange(price.value)}
                             variant="ghost"
                             key={index}
                             className="text-xs capitalize"
@@ -190,6 +213,7 @@ export function HomeSearchBox() {
               </FormItem>
             )}
           />
+
 
           <Button className="px-4 hidden md:flex">Search</Button>
         </div>

@@ -1,68 +1,64 @@
-"use client"
+"use client";
 
 import { create } from "zustand";
-import Cookies from "js-cookie";
+import { collection, query, where, getDocs, orderBy } from "firebase/firestore";
+import { db, NotificationLogKey } from "@/config";
 
 export type NotificationType = {
   id: string;
   message: string;
   type: "success" | "error" | "info";
-  timestamp: string; // Store as string for JSON serialization
+  timestamp: string;
 };
 
 interface NotificationState {
   notifications: NotificationType[];
+  fetchUserLogs: (userId: string) => Promise<void>;
   addNotification: (message: string, type: NotificationType["type"]) => void;
   removeNotification: (id: string) => void;
 }
 
-const COOKIE_NAME = "notifications";
+export const useNotificationStore = create<NotificationState>((set) => ({
+  notifications: [],
 
-export const useNotificationStore = create<NotificationState>((set) => {
-  // Load notifications from cookies on initialization
-  const loadNotifications = () => {
-    const cookieData = Cookies.get(COOKIE_NAME);
-    return cookieData ? JSON.parse(cookieData) : [];
-  };
+  fetchUserLogs: async (userId) => {
+    if (!userId) return;
 
-  return {
-    notifications: loadNotifications(),
+    try {
+      const logsRef = collection(db, NotificationLogKey);
+      const q = query(logsRef, where("userId", "==", userId), orderBy("timestamp", "desc"));
+      const snapshot = await getDocs(q);
 
-    addNotification: (message, type) => {
-      const newNotification: NotificationType = {
-        id: crypto.randomUUID(),
-        message,
-        type,
-        timestamp: new Date().toISOString(), // Store as ISO string
-      };
+      const logs: NotificationType[] = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        message: doc.data().message,
+        type: doc.data().type || "info",
+        timestamp: doc.data().timestamp,
+      }));
 
-      set((state) => {
-        const updatedNotifications = [...state.notifications, newNotification];
+      // Store fetched logs in Zustand state
+      set({ notifications: logs });
+    } catch (error) {
+      console.error("Error fetching logs:", error);
+    }
+  },
 
-        // Persist in cookie
-        Cookies.set(COOKIE_NAME, JSON.stringify(updatedNotifications), {
-          expires: 7, // Keep for 7 days
-          secure: true,
-          sameSite: "strict",
-        });
+  addNotification: (message, type) => {
+    const newNotification: NotificationType = {
+      id: crypto.randomUUID(),
+      message,
+      type,
+      timestamp: new Date().toISOString(),
+    };
 
-        return { notifications: updatedNotifications };
-      });
-    },
+    set((state) => ({
+      notifications: [...state.notifications, newNotification],
+    }));
+  },
 
-    removeNotification: (id) => {
-      set((state) => {
-        const updatedNotifications = state.notifications.filter((n) => n.id !== id);
-
-        // Update cookie after removal
-        Cookies.set(COOKIE_NAME, JSON.stringify(updatedNotifications), {
-          expires: 7,
-          secure: true,
-          sameSite: "strict",
-        });
-
-        return { notifications: updatedNotifications };
-      });
-    },
-  };
-});
+  removeNotification: (id) => {
+    set((state) => ({
+      notifications: state.notifications.filter((n) => n.id !== id),
+    }));
+  },
+}));

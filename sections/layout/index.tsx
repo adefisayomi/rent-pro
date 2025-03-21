@@ -1,7 +1,8 @@
+"use client"
+
 import { ReactNode } from "react";
 import Footer from "./footer";
 import Header from "./header";
-import PageTransition from "@/components/PageTransition";
 
 
 type BaseLayoutProps = {

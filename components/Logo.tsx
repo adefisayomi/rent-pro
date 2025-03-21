@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { Loader2 } from "lucide-react";
 import clsx from "clsx";
 import Link from "next/link";
@@ -12,20 +11,7 @@ interface LogoProps {
 }
 
 const Logo: React.FC<LogoProps> = ({ isDark = false, className }) => {
-  const [isHydrated, setIsHydrated] = useState(false);
-
-  useEffect(() => {
-    setIsHydrated(true);
-  }, []);
-
   const logoSrc = isDark ? "/logo-dark.svg" : "/logo-light.svg";
-
-  if (!isHydrated)
-    return (
-      <div className="flex items-center justify-center">
-        <Loader2 className="animate-spin w-6 h-6 text-gray-500" />
-      </div>
-    );
 
   return (
     <div className="flex items-center">
@@ -34,9 +20,10 @@ const Logo: React.FC<LogoProps> = ({ isDark = false, className }) => {
           src={logoSrc}
           alt="logo"
           width={140}
-          height={40} // Adjust as needed
+          height={40} // Adjust dimensions as needed
           className={clsx("h-auto", className)}
-          priority // Ensures faster loading
+          priority
+          unoptimized // Since the image is from the public folder
         />
       </Link>
     </div>

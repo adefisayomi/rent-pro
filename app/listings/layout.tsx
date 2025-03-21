@@ -6,6 +6,6 @@ export const metadata: Metadata = {
   description: "Browse and manage property listings on the RentHouse platform."
 };
 
-export default function Layout ({children}: {children: ReactNode}) {
+export default async function Layout ({children}: {children: ReactNode}) {
     return <>{children}</>
 }

@@ -32,8 +32,8 @@ const fetchAutocompleteResults = async (query: string): Promise<any[]> => {
   }
 };
 
-const useAutocomplete = () => {
-  const [query, setQuery] = useLocalStorage<string>("locationQuery", "");
+const useAutocomplete = (simple?: boolean) => {
+  const [query, setQuery] = simple ? useState("") : useLocalStorage<string>("locationQuery", "");
   const [results, setResults] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);

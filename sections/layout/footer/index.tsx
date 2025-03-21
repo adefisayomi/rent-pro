@@ -30,11 +30,11 @@ const Footer: React.FC = () => {
           <p className="text-[11px] cursor-default">RentHouse &copy; 2024 All Right Reserved.</p>
 
           <ul className="flex items-center gap-2 text-[11px] capitalize">
-            <li><Link href='#'>terms of use</Link></li>
+            <li><Link href='/terms'>terms of use</Link></li>
             <li className="w-1 h-1 rounded-full bg-blue-500" />
-            <li><Link href='#'>disclaimer</Link></li>
+            <li><Link href='/terms'>disclaimer</Link></li>
             <li className="w-1 h-1 rounded-full bg-blue-500" />
-            <li><Link href='#'>privacy policy</Link></li>
+            <li><Link href='/terms'>privacy policy</Link></li>
           </ul>
         </div>
       </div>
@@ -59,8 +59,8 @@ const footerListMenu: Menu[] = [
       { label: "meet our agents", url: "/agents" },
       { label: "properties", url: "/listings" },
       { label: "houses", url: "/listings" },
-      { label: "office space", url: "/office-space" },
-      { label: "legal assistance", url: "/legal" },
+      { label: "gallery", url: "/gallery" },
+      { label: "legal assistance", url: "/terms" },
     ],
   },
   {
@@ -70,7 +70,7 @@ const footerListMenu: Menu[] = [
       { label: "property for rent", url: "/listings" },
       { label: "featured properties", url: "/listings" },
       { label: "office", url: "/office-space" },
-      { label: "new properties", url: "/legal" },
+      { label: "new properties", url: "/terms" },
     ],
   },
 ];

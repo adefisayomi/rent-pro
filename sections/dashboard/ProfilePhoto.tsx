@@ -96,7 +96,7 @@ export default function ImageUploader() {
           id='profile_image'
           name='profile_image'
           onChange={handleFileChange}
-          className="border border-gray-300 rounded p-2 hidden"
+          className="hidden"
         />}
         upload new picture
         </label>

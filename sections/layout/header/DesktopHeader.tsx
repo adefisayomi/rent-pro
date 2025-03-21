@@ -15,7 +15,7 @@ import Link from "next/link";
 
 export default function DesktopHeader() {
   return (
-    <header className="w-full min-h-16 shadow-sm z-50 bg-background/50 backdrop-blur-md flex items-center justify-center sticky top-0 left-0">
+    <header className="w-full min-h-16 shadow-sm z-[100] bg-background/50 backdrop-blur-md flex items-center justify-center sticky top-0 left-0">
       <div className="w-full max-w-8xl grid items-center grid-cols-3 gap-2 px-2 py-3">
         <Logo />
         <div className="flex items-center justify-center">
@@ -42,7 +42,7 @@ const NavigationMenuLinkComponent = ({
   <NavigationMenuItem>
     <Link href={href}>
       <NavigationMenuLink
-        className={`text-xs font-medium capitalize flex flex-col ${
+        className={`text-xs font-medium truncate capitalize flex flex-col ${
           isActive ? "text-muted-foreground" : ""
         }`}
       >

@@ -1,3 +1,5 @@
+"use client"
+
 import * as React from "react";
 import {
   ColumnDef,
@@ -181,7 +183,7 @@ function PropertyTable({ properties }: { properties: Property[] }) {
   );
 }
 
-export default function MyProperty() {
+export default function MyProperty({title}: {title: string}) {
   return (
     <div className="w-full flex flex-col gap-5 p-6 ">
       <PropertyTable properties={propertiesData as any} />

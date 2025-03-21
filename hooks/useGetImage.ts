@@ -26,3 +26,27 @@ export function getSingleImage(e: React.ChangeEvent<HTMLInputElement>) {
     return errorMessage(err.message);
   }
 }
+
+export function getMultipleImages(e: React.ChangeEvent<HTMLInputElement>) {
+  try {
+    const imageFiles = e.target.files;
+    
+    if (!imageFiles || imageFiles.length === 0) {
+      throw new Error('No images selected');
+    }
+
+    const validImages = Array.from(imageFiles).filter(file => file.type.startsWith('image/'));
+
+    if (validImages.length === 0) {
+      throw new Error('Only images are supported');
+    }
+
+    return {
+      success: true,
+      data: validImages, // Returns an array of images
+      message: null
+    };
+  } catch (err: any) {
+    return errorMessage(err.message);
+  }
+}
