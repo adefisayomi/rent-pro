@@ -1,3 +1,4 @@
+import { _dummyData } from "@/_data/images";
 import MyProperty from "@/sections/dashboard/MyProperties";
 import { Metadata } from "next";
 
@@ -8,5 +9,5 @@ export const metadata: Metadata = {
   
 
 export default async function Page () {
-    return <MyProperty title="my properties"/>
+    return <MyProperty properties={_dummyData as any}/>
 }

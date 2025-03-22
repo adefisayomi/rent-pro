@@ -12,8 +12,11 @@ import {
 import { Button } from "@/components/ui/button";
 import { setCustomUserClaims } from "@/actions/auth";
 import useAlert from "@/hooks/useAlert";
+import useAuthStore from "@/contexts/useAuth";
 
 export default function SetClaims() {
+
+    const {refreshUser} = useAuthStore()
     const [accType, setAcctype] = useState('');
     const [updating, setUpdating] = useState(false);
     const [open, setOpen] = useState(true); // Always start open
@@ -26,6 +29,7 @@ export default function SetClaims() {
             if (!res.success) {
                 setAlert(res.message, 'error');
             } else {
+                await refreshUser()
                 setAlert(`Account set to ${accType}`, 'success');
                 setOpen(false);
             }

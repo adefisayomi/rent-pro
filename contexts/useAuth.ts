@@ -36,9 +36,14 @@ async function createSession(idToken: string) {
     )).data as ({success: boolean, message: string, data: {}})
 }
 
-async function getUserClaims(user: FirebaseUser) {
-  const tokenResult = await user.getIdTokenResult();
-  return tokenResult.claims;
+async function getUserClaims() {
+  try {
+    const response = await axiosInstance.get("/api/auth/session", { withCredentials: true });
+    return response.data.data;
+  } catch (error) {
+    console.error("Error fetching user claims:", error);
+    return null;  // Return null to prevent crashes
+  }
 }
 
 // ------------------------------------
@@ -76,19 +81,8 @@ const useAuthStore = create<AuthState>()(
         loading: true,
         error: null,
 
-        initialize: async () => {
-          const user = auth.currentUser;
-          if (user) {
-            const claims = await getUserClaims(user);
-            set({ user, claims, loading: false });
-            if (claims?.accountType) {
-              Cookies.set("accountType", claims.accountType as string, { path: "/" });
-            } else {
-              Cookies.remove("accountType");
-            }
-          } else {
-            set({ loading: false });
-          }
+        initialize: () => {
+          set({ loading: true });
         },
 
         refreshUser: async () => {
@@ -97,7 +91,7 @@ const useAuthStore = create<AuthState>()(
             await user.reload();
             const updatedUser = auth.currentUser;
             if (updatedUser) {
-              const claims = await getUserClaims(updatedUser);
+              const claims = await getUserClaims();
               set({ user: updatedUser, claims, loading: false });
               
               if (claims?.accountType) {
@@ -223,35 +217,35 @@ const useAuthStore = create<AuthState>()(
 );
 
 onAuthStateChanged(auth, async (user) => {
-  if (!user) {
+  if (user) {
+    try {
+      await user.reload();
+      const updatedUser = auth.currentUser;
+
+      if (updatedUser) {
+        const token = await updatedUser.getIdToken();
+        const claims = await getUserClaims();
+        await createSession(token);
+
+        useAuthStore.setState({ user: updatedUser, claims, loading: false, error: null });
+
+        if (claims?.accountType) {
+          Cookies.set("accountType", claims.accountType as string, { path: "/" });
+        } else {
+          Cookies.remove("accountType");
+        }
+      }
+    } catch (error) {
+      useAuthStore.setState({ user: null, claims: null, loading: false, error: "Session error." });
+      Cookies.remove("accountType");
+      try { await deleteSession(); } catch (err) { console.error("Error deleting session:", err); }
+    }
+  } else {
     useAuthStore.setState({ user: null, claims: null, loading: false, error: null });
     Cookies.remove("accountType");
-    await deleteSession();
-    return;
-  }
-
-  try {
-    await user.reload();
-    const updatedUser = auth.currentUser;
-    if (updatedUser) {
-      const token = await updatedUser.getIdToken();
-      const claims = await getUserClaims(updatedUser);
-      await createSession(token);
-
-      useAuthStore.setState({ user: updatedUser, claims, loading: false, error: null });
-      Cookies.set("accountType", JSON.stringify(claims.accountType || ""), { path: "/" });
-    }
-  } catch (error) {
-    useAuthStore.setState({ user: null, claims: null, loading: false, error: "Session error." });
-    Cookies.remove("accountType");
-    try {
-      await deleteSession();
-    } catch (err) {
-      console.error("Error deleting session:", err);
-    }
+    try { await deleteSession(); } catch (err) { console.error("Error deleting session:", err); }
   }
 });
-
 
 
 export default useAuthStore;

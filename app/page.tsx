@@ -2,7 +2,6 @@
 import { _properties } from "@/_data/images";
 import { getAllProperties } from "@/actions/property";
 import LayoutWithImageHeader from "@/components/layoutWithImageHeader";
-import { NewPropertySchemaType } from "@/sections/dashboard/formSchemas";
 import HomeGallery from "@/sections/home/HomeGallery";
 import TestimonialSlider from "@/sections/home/TestimonialSlider";
 import WhyChooseUs from "@/sections/home/WhyChooseUs";

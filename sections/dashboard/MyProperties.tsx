@@ -1,234 +1,223 @@
-"use client"
-
-import * as React from "react";
+"use client";
 import {
-  ColumnDef,
-  flexRender,
-  getCoreRowModel,
-  getPaginationRowModel,
-  getSortedRowModel,
-  useReactTable,
-} from "@tanstack/react-table";
-import { ChevronLeft, ChevronRight, Eye, MoreHorizontal, PenLine, Trash } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
+import { NewPropertySchemaType } from "@/sections/dashboard/formSchemas";
+import { useState } from "react";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import DropDownComp from "@/components/DropdownComp";
+import { Button } from "@/components/ui/button";
+import { Ellipsis, Eye, Pen, Search, Trash2 } from "lucide-react";
+import { _favouriteSort } from "@/_data/images";
 import dayjs from "dayjs";
+import Image from "next/image";
+import currency from "currency.js";
+import useAlert from "@/hooks/useAlert";
+import { addToFavourites } from "@/actions/favourites";
+import { cn } from "@/lib/utils";
 import {
-  DropdownMenu,
-  DropdownMenuCheckboxItem,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover"
 
-export type Property = {
-  id: string;
-  name: string;
-  location: string;
-  price: string;
-  datePublished: string;
-  views: number;
-  status: "active" | "pending" | "sold";
-  image: string;
-};
 
-export const columns: ColumnDef<Property>[] = [
-  {
-    accessorKey: "name",
-    header: () => <span>Listing</span>,
-    cell: ({ row }) => (
-      <div className="flex items-center gap-2">
-        <img src={row.original.image} alt={row.original.name} className="object-cover rounded-xl aspect-[4/3] w-20" />
-        <div className="flex flex-col">
-          <p className="text-[11px] font-medium text-muted-foreground capitalize">{row.original.name}</p>
-          <p className="text-[10px] text-muted-foreground capitalize">{row.original.location}</p>
-          <p className="text-[11px] font-semibold capitalize">{row.original.price}</p>
+
+export default function MyProperties({
+  properties,
+}: {
+  properties: (NewPropertySchemaType & { createdAt: string; id: string })[];
+}) {
+  const itemsPerPage = 5; // Number of properties per page
+  const totalProperty = properties?.length || 0;
+  const totalPage = properties && properties.length <= itemsPerPage ? 1 : Math.ceil(properties.length / itemsPerPage);
+
+  const [page, setPage] = useState(1);
+  const [sort, setSort] = useState("newest");
+  const { setAlert } = useAlert();
+
+  const nextPage = () => page < totalPage && setPage(page + 1);
+  const prevPage = () => page > 1 && setPage(page - 1);
+
+  const handleLoveClick = async (propertyId: string) => {
+    if (!propertyId) return;
+
+    const { data, success } = await addToFavourites(propertyId);
+    if (success) {
+      setAlert("Removed from favourites", "success");
+    }
+  };
+
+  // Get the properties to display on the current page
+  const currentProperties = properties.slice(
+    (page - 1) * itemsPerPage,
+    page * itemsPerPage
+  );
+
+  return (
+    <div className="w-full flex flex-col">
+      <h2 className="text-xs font-semibold capitalize pb-4">my properties</h2>
+
+      <div className="border rounded-lg min-h-[400px] flex flex-col">
+        <div className="w-full flex items-center justify-between p-2">
+          <p className="text-[11px] text-muted-foreground">
+          Showing <span className="font-bold">{(page - 1) * itemsPerPage + 1}</span> to <span className="font-bold">{Math.min(page * itemsPerPage, totalProperty)}</span> of <span className="font-bold">{totalProperty}</span> results
+          </p>
+
+          <div className="flex items-center gap-2">
+            <p className="text-[11px] font-medium capitalize">sort by:</p>
+            <DropDownComp
+              title={sort}
+              className="w-fit gap-2 border text-[11px]"
+              component={
+                <div className="flex w-[100px] flex-col gap-2">
+                  {_favouriteSort.map((_sort, index) => (
+                    <Button
+                      key={index}
+                      onClick={() => setSort(_sort)}
+                      className="text-[11px] w-full capitalize"
+                      variant="ghost"
+                    >
+                      {_sort}
+                    </Button>
+                  ))}
+                </div>
+              }
+            />
+            <Button variant="ghost" className="rounded-[8px] w-8 h-8 bg-muted" size="icon">
+              <Search className="w-4" />
+            </Button>
+          </div>
+        </div>
+
+        <div className="flex-grow">
+          <Table>
+            <TableHeader className="border-y bg-slate-100">
+              <TableRow className="py-10 h-14">
+                <TableHead className="w-[300px] text-[11px] capitalize text-slate-800 font-semibold">listing</TableHead>
+                <TableHead className="text-[11px] text-center capitalize text-slate-800 font-semibold">date published</TableHead>
+                <TableHead className="text-[11px] text-center capitalize text-slate-800 font-semibold">view</TableHead>
+                <TableHead className="text-[11px] text-center capitalize text-slate-800 font-semibold">status</TableHead>
+                <TableHead className="text-center text-[11px] capitalize text-slate-800 font-semibold">action</TableHead>
+              </TableRow>
+            </TableHeader>
+
+            <TableBody>
+              {currentProperties.map((pro, index) => (
+                <TableRow key={index}>
+                  <TableCell className="flex items-start gap-2">
+                    <Image
+                      src={pro.images[0] as string || ""}
+                      alt={`Property Image ${index + 1}`}
+                      width={300}
+                      height={300}
+                      className="w-full max-w-28 aspect-[3/2] rounded-md object-cover"
+                      loading="lazy"
+                      unoptimized
+                    />
+                    <div className="flex flex-col gap-1 items-start">
+                      <h4 className="text-[11px] font-semibold capitalize text-gray-600">{pro.title}</h4>
+                      <h4 className="text-[11px] font-medium text-muted-foreground">{pro.address}</h4>
+                      <h4 className="text-[11px] font-semibold text-gray-700">
+                        {currency(pro.price, { symbol: "₦", precision: 2 }).format()}
+                      </h4>
+                    </div>
+                  </TableCell>
+                  <TableCell className="text-center text-[11px]">
+                    {pro.createdAt ? dayjs(pro.createdAt).format("DD MMM, YYYY") : "-"}
+                  </TableCell>
+                  <TableCell className="text-center text-[11px]">20</TableCell>
+
+                  <TableCell className="relative">
+                    <Button
+                      onClick={() => handleLoveClick(pro.id)}
+                      variant={'outline'}
+                      size="sm"
+                      className={cn("flex items-center font-normal capitalize text-[11px] gap-2 rounded-2xl absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2", pro.published ? 'border-primary bg-slate-100' : 'border-destructive bg-red-100')}
+                    >
+                      {pro.published ? 'active' : 'pending'}
+                      </Button>
+                  </TableCell>
+
+                  <TableCell className="relative">
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="flex items-center bg-slate-100 gap-2 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
+                        >
+                          <Ellipsis className="w-4" />
+                        </Button>
+                      </PopoverTrigger>
+
+                      <PopoverContent className="w-32 flex rounded-t-none flex-col items-center p-0">
+                        <Button variant='ghost' className="border-b w-full rounded-none text-[11px] flex items-center gap-2 text-gray-700 ">
+                          <Eye className="w-4" />
+                          View
+                        </Button>
+                        <Button variant='ghost' className="border-b w-full rounded-none text-[11px] flex items-center gap-2 text-gray-700">
+                          <Pen className="w-4" />
+                          Edit
+                        </Button>
+                        <Button variant='ghost' className=" w-full rounded-t-none rounded-b-lg text-[11px] flex items-center gap-2 text-gray-700">
+                          <Trash2 className="w-4" />
+                          Delete
+                        </Button>
+                      </PopoverContent>
+                    </Popover>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+
+        <div className="border-t p-2 flex items-center justify-end">
+          <PaginationNav
+            currectPage={page}
+            totalPage={totalPage}
+            prevPage={prevPage}
+            nextPage={nextPage}
+          />
         </div>
       </div>
-    ),
-  },
-  {
-    accessorKey: "datePublished",
-    header: () => <span>Date Published</span>,
-    cell: ({ row }) => <div className="text-[11px] text-muted-foreground font-medium">{row.original.datePublished}</div>,
-  },
-  {
-    accessorKey: "views",
-    header: () => <span>Views</span>,
-    cell: ({ row }) => <div className="text-[11px] text-muted-foreground font-medium">{row.original.views}</div>,
-  },
-  {
-    accessorKey: "status",
-    header: () => <span>Status</span>,
-    cell: ({ row }) => (
-      <Button className="rounded-2xl capitalize" variant="outline" size="sm">
-        {row.original.status}
-      </Button>
-    ),
-  },
-  {
-    id: "actions",
-    header: () => <span>Action</span>,
-    cell: ({ row }) => (
-      // <div className="flex gap-2">
-        // <Button variant="ghost" size="icon">
-        //   <Eye className="w-4" />
-        // </Button>
-        // <Button variant="ghost" size="icon">
-        //   <PenLine className="w-4" />
-        // </Button>
-        // <Button variant="ghost" size="icon">
-        //   <Trash className="w-4" />
-        // </Button>
-      // </div>
-      <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0 bg-slate-100">
-              <MoreHorizontal className="w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="flex flex-col ">
-            <Button variant="ghost" size="icon" className="w-full flex items-center gap-2 text-[11px] text-muted-foreground capitalize justify-start px-3">
-              <Eye className="w-4" />
-              view
-            </Button>
-            <Button variant="ghost" size="icon" className="w-full flex items-center gap-2 text-[11px] text-muted-foreground capitalize justify-start px-3">
-              <PenLine className="w-4" />
-              edit
-            </Button>
-            <Button variant="ghost" size="icon" className="w-full flex items-center gap-2 text-[11px] text-muted-foreground capitalize justify-start px-3">
-              <Trash className="w-4" />
-              delete
-            </Button>
-            {/* <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            <DropdownMenuItem
-              onClick={() => navigator.clipboard.writeText(payment.id)}
-            >
-              Copy payment ID
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem>View customer</DropdownMenuItem>
-            <DropdownMenuItem>View payment details</DropdownMenuItem> */}
-          </DropdownMenuContent>
-        </DropdownMenu>
-    ),
-  },
-];
-
-function PropertyTable({ properties }: { properties: Property[] }) {
-  const table = useReactTable({
-    data: properties,
-    columns,
-    getCoreRowModel: getCoreRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-  });
-
-  return (
-    <div className="w-full border rounded-xl">
-      <div className="flex items-center justify-between py-4 text-xs text-muted-foreground px-2">
-        <p>
-          Showing <span className="font-semibold text-slate-800">1 - {properties.length}</span> of{" "}
-          <span className="font-semibold text-slate-800">{properties.length}</span> results
-        </p>
-        <DropDownComp title="Sort by" className="w-fit gap-2 border" component={<p className="text-[11px]">Newest</p>} />
-      </div>
-
-      <Table>
-        <TableHeader className="border-y bg-slate-100 h-14">
-          {table.getHeaderGroups().map((headerGroup) => (
-            <TableRow key={headerGroup.id}>
-              {headerGroup.headers.map((header) => (
-                <TableHead key={header.id} className="text-[11px] font-semibold capitalize text-slate-800">
-                  {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
-                </TableHead>
-              ))}
-            </TableRow>
-          ))}
-        </TableHeader>
-
-        <TableBody>
-          {table.getRowModel().rows?.length ? (
-            table.getRowModel().rows.map((row) => (
-              <TableRow key={row.id}>
-                {row.getVisibleCells().map((cell) => (
-                  <TableCell key={cell.id}>
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                  </TableCell>
-                ))}
-              </TableRow>
-            ))
-          ) : (
-            <TableRow>
-              <TableCell colSpan={columns.length} className="h-24 text-center">
-                No results.
-              </TableCell>
-            </TableRow>
-          )}
-        </TableBody>
-      </Table>
-
-      <div className="w-full flex justify-between items-center border-t px-2 py-4">
-        <Button variant="outline" size="icon" onClick={() => table.previousPage()} disabled={!table.getCanPreviousPage()}>
-          <ChevronLeft className="w-4" />
-        </Button>
-        <Button variant="outline" size="icon" onClick={() => table.nextPage()} disabled={!table.getCanNextPage()}>
-          <ChevronRight className="w-4" />
-        </Button>
-      </div>
     </div>
   );
 }
 
-export default function MyProperty({title}: {title: string}) {
+function PaginationNav({ nextPage, prevPage, currectPage, totalPage }: { nextPage: any; prevPage: any; currectPage: number; totalPage: number }) {
   return (
-    <div className="w-full flex flex-col gap-5 p-6 ">
-      <PropertyTable properties={propertiesData as any} />
-    </div>
+    <Pagination className="w-fit">
+      <PaginationContent className="w-fit">
+        <PaginationItem>
+          <PaginationPrevious onClick={prevPage} />
+        </PaginationItem>
+        <PaginationItem>
+          <PaginationLink href="#" isActive>
+            {currectPage}
+          </PaginationLink>
+        </PaginationItem>
+        <span className="text-[10px] lowercase text-muted-foreground font-medium mx-1">of</span>
+        <PaginationItem>
+          <PaginationLink href="#">{totalPage}</PaginationLink>
+        </PaginationItem>
+        <PaginationItem>
+          <PaginationNext onClick={nextPage} />
+        </PaginationItem>
+      </PaginationContent>
+    </Pagination>
   );
 }
-
-const getRandomDate = (): string => {
-  const start = dayjs("2020-01-01");
-  const end = dayjs("2025-12-31");
-  const randomTimestamp = start.valueOf() + Math.random() * (end.valueOf() - start.valueOf());
-  return dayjs(randomTimestamp).format("DD MMM, YYYY");
-};
-
-const getRandomViews = (): number => Math.floor(Math.random() * 2001);
-
-export const propertiesData = [
-  {
-    id: "prop1",
-    name: "Luxury Apartment",
-    location: "Lekki, Lagos",
-    price: "₦25,000,000",
-    datePublished: getRandomDate(),
-    views: getRandomViews(),
-    status: "active",
-    image: "https://images.unsplash.com/photo-1554995207-c18c203602cb?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-  },
-  {
-    id: "prop2",
-    name: "Modern Duplex",
-    location: "Victoria Island, Lagos",
-    price: "₦45,000,000",
-    datePublished: getRandomDate(),
-    views: getRandomViews(),
-    status: "active",
-    image: "https://images.unsplash.com/photo-1513584684374-8bab748fbf90?q=80&w=2065&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-  },
-  {
-    id: "prop3",
-    name: "Cozy Bungalow",
-    location: "Ikeja, Lagos",
-    price: "₦15,000,000",
-    datePublished: getRandomDate(),
-    views: getRandomViews(),
-    status: "pending",
-    image: "https://images.unsplash.com/photo-1568605114967-8130f3a36994?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-  },
-];
