@@ -59,7 +59,7 @@ export default function MobileHeader() {
 
   return (
     <div
-      className={`w-full h-full grid grid-cols-3 px-2 min-h-16 py-4 shadow-sm z-50 bg-background/50 backdrop-blur-md transition-all duration-300 
+      className={`w-full h-full grid grid-cols-3 px-2 min-h-16 py-4 shadow-sm z-50 bg-background/50 border-b backdrop-blur-md transition-all duration-300 
         ${isSticky ? "sticky top-0 left-0" : "static top-0 left-0"}`}
     >
       <div className="flex items-center justify-start">

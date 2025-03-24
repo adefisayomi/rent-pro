@@ -12,7 +12,7 @@ import useAuthStore from "@/contexts/useAuth"
 import { NewPropertySchemaType } from "@/sections/dashboard/formSchemas"
 import SingleProperty from "@/sections/property/singleProperty"
 import { usePathname, useRouter } from "next/navigation"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import {
     Table,
     TableBody,
@@ -105,7 +105,7 @@ export default function Favourites ({favourites}: {favourites: (NewPropertySchem
                             <TableBody>
                               {favourites && favourites.length > 0 && favourites.map((pro, index) => (
                                   <TableRow key={index}>
-                                    <TableCell className="flex items-start gap-2">
+                                    <TableCell className="flex items-start gap-2 cursor-pointer " onClick={() => router.push(`/listings/${pro?.id}`)}>
                                         <Image
                                           src={pro.images[0]! as string || ''}
                                           alt={`Property Image ${index + 1}`}

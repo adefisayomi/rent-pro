@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { ArrowRight, Bath, BedDouble, CarFront, MapPin, Ratio } from "lucide-react";
 import LayoutWithImageHeader from "@/components/layoutWithImageHeader";
 import { Button } from "@/components/ui/button";
@@ -8,6 +8,20 @@ import TestimonialSlider from "@/sections/home/TestimonialSlider";
 import { NewPropertySchemaType } from "@/sections/dashboard/formSchemas";
 import Image from "next/image";
 import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+  type CarouselApi,
+} from "@/components/ui/carousel"
+import {
+  Dialog,
+  DialogContent,
+  DialogTrigger,
+} from "@/components/ui/dialog"
+import Autoplay from "embla-carousel-autoplay";
 
 
 export default async function ListingDetails({ property }: {property: NewPropertySchemaType}) {
@@ -46,6 +60,25 @@ export default async function ListingDetails({ property }: {property: NewPropert
 }
 
 const ImageInformation = ({ property }: { property: NewPropertySchemaType }) => {
+  const randomDelay = useMemo(() => Math.floor(Math.random() * (5000 - 2000 + 1)) + 2000, []);
+  const pluginRef = useRef(Autoplay({ delay: randomDelay, stopOnInteraction: true }));
+  const [api, setApi] = useState<CarouselApi | null>(null);
+  const [modalApi, setModalApi] = useState<CarouselApi | null>(null);
+  const [current, setCurrent] = useState(0);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!modalApi) return;
+
+    modalApi.scrollTo(current); // Set the initial slide position
+    const onSelect = () => setCurrent(modalApi.selectedScrollSnap());
+    modalApi.on("select", onSelect);
+
+    return () => {
+      modalApi.off("select", onSelect);
+    };
+  }, [modalApi, current]);
+
   return (
     <div className="w-full mx-auto max-w-8xl flex items-center gap-8 md:flex-row flex-col px-2 py-8">
       <div className="w-full max-w-lg flex flex-col items-start gap-4">
@@ -56,7 +89,9 @@ const ImageInformation = ({ property }: { property: NewPropertySchemaType }) => 
         <h1 className="text-2xl capitalize font-bold text-slate-800 text-start">
           {property?.title ?? "No Title"}
         </h1>
-        <p className="text-xs text-muted-foreground">{property?.description ?? "No description available"}</p>
+        <p className="text-xs text-muted-foreground">
+          {property?.description ?? "No description available"}
+        </p>
 
         <div className="w-full flex md:items-center justify-between flex-col md:flex-row items-start gap-4">
           <h3 className="text-xl font-medium">
@@ -71,9 +106,45 @@ const ImageInformation = ({ property }: { property: NewPropertySchemaType }) => 
 
       <div className="w-full grid grid-cols-2 md:grid-cols-3 gap-2 md:gap-4">
         {property?.images?.length ? (
-          property.images.map((image, index) => (
-            <ImageWithLoader key={index} src={image as string} alt={`Property image ${index + 1}`} />
-          ))
+          <Dialog>
+            {property.images.map((image, index) => (
+              <React.Fragment key={index}>
+                <DialogTrigger onClick={() => setCurrent(index)}>
+                  <ImageWithLoader src={image as string} alt={`Property image ${index + 1}`} />
+                </DialogTrigger>
+
+                {index === current && (
+                  <DialogContent
+                    overlayClassName="bg-black/90 z-[100]"
+                    className="md:h-[70vh] h-[80vh] w-full z-[100] p-0 sm:max-w-4xl bg-transparent border-0"
+                  >
+                    <Carousel setApi={setModalApi} className="w-full h-full">
+                      <CarouselContent className="h-full">
+                        {property.images.map((img, idx) => (
+                          <CarouselItem key={idx} className="flex items-center justify-center h-full">
+                            <Image
+                              src={img as string}
+                              alt={`Modal Image ${idx + 1}`}
+                              width={800}
+                              height={800}
+                              className="w-auto max-h-full object-contain"
+                              loading="lazy"
+                              unoptimized
+                            />
+                          </CarouselItem>
+                        ))}
+                      </CarouselContent>
+                      <CarouselPrevious variant="ghost" className="bg-transparent text-white sm:-left-10" />
+                      <CarouselNext variant="ghost" className="bg-transparent text-white sm:-right-10" />
+                    </Carousel>
+                    <div className="py-2 text-center text-white text-[11px]">
+                      Slide {current + 1} of {property.images.length}
+                    </div>
+                  </DialogContent>
+                )}
+              </React.Fragment>
+            ))}
+          </Dialog>
         ) : (
           <div className="col-span-2 md:col-span-3 flex items-center justify-center bg-gray-200 p-6 rounded-lg">
             No Images Available
@@ -83,6 +154,7 @@ const ImageInformation = ({ property }: { property: NewPropertySchemaType }) => 
     </div>
   );
 };
+
 
 // ✅ **Reusable Image Loader Component**
 const ImageWithLoader = ({ src, alt, className }: { src: string; alt: string; className?: string }) => {
