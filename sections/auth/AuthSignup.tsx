@@ -94,7 +94,7 @@ export default function SignupForm () {
                         <Link href={Routes.resetPassword} className="text-primary text-xs font-medium hover:underline">Forgot Password?</Link>
                     </div>
 
-                    <Button disabled={loading} loading={loading} className=" mt-4" size='lg'>
+                    <Button disabled={loading} loading={form.formState.isSubmitting} className=" mt-4" size='lg'>
                         Continue
                     </Button>
                 </form>

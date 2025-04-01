@@ -62,7 +62,7 @@ export default function SingleProperty({ property }: { property: NewPropertySche
       </div>
 
       <div className="w-full flex items-center justify-between gap-2 px-2 py-3 border-t">
-        <h3 className="text-sm font-medium">{currency(property?.price, { symbol: "₦", precision: 2 }).format()} / <span className="text-[11px] text-muted-foreground">year</span></h3>
+        <h3 className="text-sm font-medium">{currency(property.price, { symbol: "₦", precision: 2 }).format()} / <span className="text-[11px] text-muted-foreground">year</span></h3>
         <Button
           onClick={() => router.push(`/listings/${property?.id}`)}
           size="sm"

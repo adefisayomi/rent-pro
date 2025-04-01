@@ -21,7 +21,7 @@ export async function generateMetadata({ params }: Props) {
   const property = await fetchProperty(id);
 
   return {
-    title:`Listing - ${property?.title.replaceAll(" ", '-')} | Rent-House® - Your Trusted Home Rental Partner` || "Property Details",
+    title:`${property?.title.replaceAll(" ", '-')} - Listings | Rent-House® - Your Trusted Home Rental Partner` || "Property Details",
   };
 }
 

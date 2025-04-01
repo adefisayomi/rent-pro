@@ -28,6 +28,7 @@ const AutocompleteComponent: React.FC<AutocompleteProps> = ({ setLocation, class
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setQuery(e.target.value);
+    setLocation?.({})
     setIsDropdownOpen(true);
   };
 

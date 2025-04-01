@@ -22,6 +22,8 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 import Autoplay from "embla-carousel-autoplay";
+import currency from "currency.js";
+import { useRouter } from "next/navigation";
 
 
 export default async function ListingDetails({ property }: {property: NewPropertySchemaType}) {
@@ -35,7 +37,7 @@ export default async function ListingDetails({ property }: {property: NewPropert
       <div className="w-full mx-auto flex flex-col px-2">
         <div className="w-full mx-auto max-w-8xl h-[50vh] mt-5 mb-20 relative " 
           style={{
-            backgroundImage: `url(${property?.images?.[1]})`,
+            backgroundImage: `url(${property?.images?.[0]})`,
             backgroundSize: "cover",
             backgroundPosition: "center",
             borderRadius: "16px", // Optional: Rounds the edges
@@ -60,29 +62,22 @@ export default async function ListingDetails({ property }: {property: NewPropert
 }
 
 const ImageInformation = ({ property }: { property: NewPropertySchemaType }) => {
-  const randomDelay = useMemo(() => Math.floor(Math.random() * (5000 - 2000 + 1)) + 2000, []);
-  const pluginRef = useRef(Autoplay({ delay: randomDelay, stopOnInteraction: true }));
-  const [api, setApi] = useState<CarouselApi | null>(null);
-  const [modalApi, setModalApi] = useState<CarouselApi | null>(null);
-  const [current, setCurrent] = useState(0);
-  const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    if (!modalApi) return;
+  const router = useRouter()
+  const [lat, lon] = (() => {
+    try {
+      return property.cordinates ? JSON.parse(property.cordinates).map(Number) : ["", ""];
+    } catch (error) {
+      console.error("Invalid coordinates format:", error);
+      return ["", ""];
+    }
+  })();
 
-    modalApi.scrollTo(current); // Set the initial slide position
-    const onSelect = () => setCurrent(modalApi.selectedScrollSnap());
-    modalApi.on("select", onSelect);
-
-    return () => {
-      modalApi.off("select", onSelect);
-    };
-  }, [modalApi, current]);
 
   return (
     <div className="w-full mx-auto max-w-8xl flex items-center gap-8 md:flex-row flex-col px-2 py-8">
       <div className="w-full max-w-lg flex flex-col items-start gap-4">
-        <Button className="flex items-center gap-2">
+        <Button onClick={() => router.push(`/map?lat=${lat}&lon=${lon}`)} className="flex items-center gap-2">
           <MapPin className="w-4" />
           {property?.address ?? "Address not available"}
         </Button>
@@ -95,7 +90,7 @@ const ImageInformation = ({ property }: { property: NewPropertySchemaType }) => 
 
         <div className="w-full flex md:items-center justify-between flex-col md:flex-row items-start gap-4">
           <h3 className="text-xl font-medium">
-            ₦{property?.price ?? "N/A"} <span className="text-[11px] text-muted-foreground">/year</span>
+            {currency(property.price, { symbol: "₦", precision: 2 }).format()} <span className="text-[11px] text-muted-foreground">/year</span>
           </h3>
           <Button variant="outline" className="flex items-center gap-2 capitalize w-full md:w-fit">
             Explore Residence
@@ -104,52 +99,38 @@ const ImageInformation = ({ property }: { property: NewPropertySchemaType }) => 
         </div>
       </div>
 
+       
       <div className="w-full grid grid-cols-2 md:grid-cols-3 gap-2 md:gap-4">
-        {property?.images?.length ? (
-          <Dialog>
-            {property.images.map((image, index) => (
-              <React.Fragment key={index}>
-                <DialogTrigger onClick={() => setCurrent(index)}>
-                  <ImageWithLoader src={image as string} alt={`Property image ${index + 1}`} />
-                </DialogTrigger>
-
-                {index === current && (
-                  <DialogContent
-                    overlayClassName="bg-black/90 z-[100]"
-                    className="md:h-[70vh] h-[80vh] w-full z-[100] p-0 sm:max-w-4xl bg-transparent border-0"
-                  >
-                    <Carousel setApi={setModalApi} className="w-full h-full">
-                      <CarouselContent className="h-full">
-                        {property.images.map((img, idx) => (
-                          <CarouselItem key={idx} className="flex items-center justify-center h-full">
-                            <Image
-                              src={img as string}
-                              alt={`Modal Image ${idx + 1}`}
-                              width={800}
-                              height={800}
-                              className="w-auto max-h-full object-contain"
-                              loading="lazy"
-                              unoptimized
-                            />
+          {property?.images && property?.images.length > 0 && property?.images.map((image, index) => (
+            <Dialog key={index}>
+              <DialogTrigger asChild className="cursor-pointer">
+                <ImageWithLoader src={image as string} alt={`Property image ${index + 1}`} />
+              </DialogTrigger>
+  
+              <DialogContent
+                overlayClassName="bg-black/95 z-[100]"
+                className="w-full z-[100] bg-transparent flex items-center justify-center border-0 sm:max-w-4xl h-[70vh] p-0"
+              >
+                  <Carousel className="w-full max-w-2xl">
+                      <CarouselContent>
+                          {property?.images?.map((image, index) => (
+                          <CarouselItem key={index}>
+                              <div className="p-1">
+                                  <img
+                                      src={image as string}
+                                      alt={`Property ${index + 1}`}
+                                      className="w-full h-full flex object-cover aspect-square"
+                                  />
+                              </div>
                           </CarouselItem>
-                        ))}
+                          ))}
                       </CarouselContent>
-                      <CarouselPrevious variant="ghost" className="bg-transparent text-white sm:-left-10" />
-                      <CarouselNext variant="ghost" className="bg-transparent text-white sm:-right-10" />
-                    </Carousel>
-                    <div className="py-2 text-center text-white text-[11px]">
-                      Slide {current + 1} of {property.images.length}
-                    </div>
-                  </DialogContent>
-                )}
-              </React.Fragment>
-            ))}
-          </Dialog>
-        ) : (
-          <div className="col-span-2 md:col-span-3 flex items-center justify-center bg-gray-200 p-6 rounded-lg">
-            No Images Available
-          </div>
-        )}
+                      <CarouselPrevious />
+                      <CarouselNext />
+                  </Carousel>
+              </DialogContent>
+            </Dialog>
+          ))}
       </div>
     </div>
   );
@@ -175,7 +156,7 @@ const ImageWithLoader = ({ src, alt, className }: { src: string; alt: string; cl
         alt={alt}
         width={300}
         height={300}
-        className={`object-cover w-full h-full rounded-lg transition-opacity duration-300 ${
+        className={`object-cover w-full h-full rounded-lg aspect-[3/2] transition-opacity duration-300 ${
           loading ? "opacity-70" : "opacity-100"
         }`}
         loading="lazy"

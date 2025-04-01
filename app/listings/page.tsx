@@ -11,8 +11,6 @@ type ListingsProps = {
 };
 
 export default async function Listings({ params, searchParams }: ListingsProps) {
-  // Await params and searchParams if they are indeed promises
-  const resolvedParams = await params;
   const resolvedSearchParams = await searchParams;
   const formattedSearchParams: Record<string, string | undefined> = Object.fromEntries(
     Object.entries(resolvedSearchParams).map(([key, value]) => [
@@ -42,9 +40,9 @@ export default async function Listings({ params, searchParams }: ListingsProps) 
         </div>
 
         {/* Property Listings */}
-        <div className="w-full flex flex-col items-center md:grid md:grid-cols-3 gap-6 md:p-10 p-6 ">
+        <div className="w-full  grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:p-10 p-6 ">
           {latestProperties && latestProperties.length > 0 && (
-            latestProperties.map((property, index) => (
+            latestProperties.map((property: any, index: number) => (
               <SingleProperty property={property as any} key={index} />
             ))
           )}

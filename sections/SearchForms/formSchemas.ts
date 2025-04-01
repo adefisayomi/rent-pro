@@ -1,20 +1,30 @@
-import * as yup from 'yup'
+import * as yup from 'yup';
 
 export const propertySearchSchema = yup.object().shape({
-      type: yup.string(),
-      location: yup.object().shape<any>({}).optional(),
-      minPrice: yup
-        .string(),
-      maxPrice: yup
-        .string(),
-      propertyType: yup
-        .string(),
-      bedrooms: yup
-        .string().default("any"),
-    //   bathrooms: yup
-    //     .number()
-    //     .min(0, 'Number of bathrooms cannot be negative')
-    //     .integer('Number of bathrooms must be an integer')
-    //     .required('Number of bathrooms is required'),
-    //   furnished: yup.boolean().required('Furnished status is required'),
-    });
+  type: yup.string().default("all type").optional(),
+  listedIn: yup.string().default("all").optional(),
+  // location: yup
+  // .lazy((value) =>
+  //   typeof value === "object"
+  //     ? yup
+  //         .object()
+  //         .shape({
+  //           display_address: yup.string().optional(),
+  //           address: yup
+  //             .object()
+  //             .shape({
+  //               country: yup.string().optional(),
+  //               state: yup.string().optional(),
+  //               county: yup.string().optional(),
+  //             })
+  //             .optional(),
+  //           lat: yup.number().optional(),
+  //           lon: yup.number().optional(),
+  //         })
+  //         .default({})
+  //     : yup.mixed().default({})
+  // )
+  // .optional(),
+  min: yup.string().optional(),
+  max: yup.string().optional(),
+});

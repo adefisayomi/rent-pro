@@ -99,7 +99,7 @@ const Navigation = ({ activeDiv, setActiveDiv, accountType }: NavigationProps) =
       return router.replace(res.redirectUrl);
     }
   };
-  
+
   return (
     <div className="w-full border-x border-t rounded-t-sm max-w-[250px] md:block hidden">
       {Object.entries(Routes.dashboard).map(([section, items], index) => {

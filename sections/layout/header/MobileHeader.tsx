@@ -1,5 +1,6 @@
 "use client";
 
+
 import { useEffect, useState } from "react";
 import Logo from "@/components/Logo";
 import SearchBar from "./searchBar";
@@ -130,7 +131,8 @@ export default function MobileHeader() {
 
 export function DashboardNav({ setOpen }: { setOpen: Function }) {
   const router = useRouter();
-  const {claims} = useAuthStore()
+  const {claims, user} = useAuthStore()
+  const passwordResetActive = user?.providerData?.some(res => res.providerId === "password");
 
   const handleNavigation = (path: string) => {
     router.push(path); // Navigate first
@@ -154,13 +156,16 @@ export function DashboardNav({ setOpen }: { setOpen: Function }) {
 
             <AccordionContent>
               {typeof items === "string" ? (
+                JSON.stringify(items).toLowerCase() === "password" && passwordResetActive && (
                 <div onClick={() => handleNavigation(items)}>
                   <div className="w-full hover:border-primary border-b p-4 h-[45px] text-muted-foreground flex items-center duration-100 hover:text-primary cursor-pointer">
                     <p className="text-[11px] font-medium capitalize pl-6">{section}</p>
                   </div>
                 </div>
-              ) : (
-                Object.entries(items).map(([label, path], subIndex) => (
+              )) : (
+                Object.entries(items)
+                .filter(([label]) => label.toLowerCase() !== "password" || passwordResetActive)
+                .map(([label, path], subIndex) => (
                   <div key={subIndex} onClick={() => handleNavigation(path)}>
                     <div className="w-full hover:border-primary text-muted-foreground duration-100 border-b p-4 h-[45px] flex items-center hover:text-primary cursor-pointer">
                       <p className="text-[11px] font-medium capitalize pl-6">{label}</p>

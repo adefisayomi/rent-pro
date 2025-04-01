@@ -25,6 +25,7 @@ import {
 import useLocalStorage from "@/hooks/useLocalstorage"
 import { useEffect } from "react"
 import DropDownComp from "@/components/DropdownComp"
+import { generatePriceList } from "../SearchForms/generatePriceList"
 
 
 
@@ -45,7 +46,7 @@ export default function HomeFilterForm ({onClose}: {onClose?: () => void}) {
     garages: 0,
     parkings: 0,
   });
-  const _priceList: Record<string, string> = generatePriceList();
+  const _priceList = generatePriceList();
   
   const form = useForm<FilterFormData>({
     resolver: yupResolver(filterFormSchema),
@@ -60,6 +61,7 @@ export default function HomeFilterForm ({onClose}: {onClose?: () => void}) {
       garages: savedFilters.garages ?? 0,
       parkings: savedFilters.parkings ?? 0,
     },
+    mode: 'onChange'
   });
   
   // Update local storage whenever form values change
@@ -80,16 +82,20 @@ export default function HomeFilterForm ({onClose}: {onClose?: () => void}) {
   
     return () => subscription.unsubscribe(); // Cleanup subscription
   }, [form.watch, setSavedFilters]);
+
+  // useEffect(() => {
+  //   const unsubscribe = form.watch((values) => {
+  //     setSavedFilters(values); // Update local storage
+  //     onSubmit(values); // Automatically trigger submit function
+  //   });
   
-  const onSubmit = async (data: FilterFormData) => {
-    console.log(data);
-  };
-  
+  //   return () => unsubscribe(); // 
+  // }, [form.watch, setSavedFilters]);
   
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className=" text-white flex flex-col w-full">
+      <div className=" text-white flex flex-col w-full">
         <div className="w-full flex items-center bg-slate-900 justify-between gap-2 p-4 pl-10  border-b border-muted-foreground">
             <h2 className="text-sm font-semibold capitalize">Filter</h2>
             <Button onClick={onClose} variant='outline' className=" group/closeButton border-muted-foreground border rounded-xl bg-slate-800 flex items-center gap-2">
@@ -142,21 +148,20 @@ export default function HomeFilterForm ({onClose}: {onClose?: () => void}) {
                   <FormLabel className="capitalize text-xs text-white font-medium">Min Price</FormLabel>
                   <FormControl>
                   <DropDownComp
-                      title={_priceList[String(field.value) || '100000']} // Convert field.value to a string
-                      className="bg-slate-900 text-white border border-muted-foreground text-[11px]"
+                      title={_priceList.find((p) => p.value === Number(field.value))?.label || "min Price"}
                       component={
-                        <ul>
-                          {Object.entries(_priceList).map(([key, value], i) => (
-                            <li
-                              key={i}
-                              onClick={() => field.onChange(Number(key))} // Ensure key is a number
-                              value={key}
-                              className="text-muted-foreground text-[10px] px-3 py-2 cursor-pointer hover:bg-slate-100 rounded-md"
+                        <div className="flex w-full flex-col gap-2 items-start">
+                          {_priceList.map((price, index) => (
+                            <Button
+                              onClick={() => field.onChange(price.value)}
+                              variant="ghost"
+                              key={index}
+                              className="text-xs capitalize w-full"
                             >
-                              {value}
-                            </li>
+                              {price.label}
+                            </Button>
                           ))}
-                        </ul>
+                        </div>
                       }
                     />
                   </FormControl>
@@ -173,21 +178,20 @@ export default function HomeFilterForm ({onClose}: {onClose?: () => void}) {
                   <FormLabel className="capitalize text-xs text-white font-medium">Max Price</FormLabel>
                   <FormControl>
                   <DropDownComp
-                      title={_priceList[String(field.value) || '400000']} // Convert field.value to a string
-                      className="bg-slate-900 text-white border border-muted-foreground text-[11px]"
+                      title={_priceList.find((p) => p.value === Number(field.value))?.label || "max Price"}
                       component={
-                        <ul>
-                          {Object.entries(_priceList).map(([key, value], i) => (
-                            <li
-                              key={i}
-                              onClick={() => field.onChange(Number(key))} // Ensure key is a number
-                              value={key}
-                              className="text-muted-foreground text-[10px] px-3 py-2 cursor-pointer hover:bg-slate-100 rounded-md"
+                        <div className="flex w-full flex-col gap-2 items-start">
+                          {_priceList.map((price, index) => (
+                            <Button
+                              onClick={() => field.onChange(price.value)}
+                              variant="ghost"
+                              key={index}
+                              className="text-xs capitalize w-full"
                             >
-                              {value}
-                            </li>
+                              {price.label}
+                            </Button>
                           ))}
-                        </ul>
+                        </div>
                       }
                     />
                   </FormControl>
@@ -355,38 +359,7 @@ export default function HomeFilterForm ({onClose}: {onClose?: () => void}) {
             </FormItem>
           )}
         />
-      </form>
+      </div>
     </Form>
   )
 }
-
-
-const generatePriceList = (): Record<number, string> => {
-  const prices: Record<number, string> = {};
-
-  const addPrice = (price: number, label: string) => {
-    prices[price] = `₦ ${label}`;
-  };
-
-  // Define specific price ranges and steps
-  const ranges = [
-    { max: 1_000_000, step: 100_000 },   // 100,000 to 1 Million
-    { max: 10_000_000, step: 1_000_000 }, // 1 Million to 10 Million
-    { max: 100_000_000, step: 10_000_000 }, // 10 Million to 100 Million
-    { max: 300_000_000, step: 50_000_000 }  // 100 Million to 300 Million
-  ];
-
-  // Populate price options
-  ranges.forEach(({ max, step }) => {
-    for (let price = Object.keys(prices).length === 0 ? 100_000 : Math.max(...Object.keys(prices).map(Number)) + step;
-      price <= max;
-      price += step) {
-      const formattedPrice = price >= 1_000_000
-        ? `${(price / 1_000_000).toLocaleString()} Million`
-        : `${price.toLocaleString()}`;
-      addPrice(price, formattedPrice);
-    }
-  });
-
-  return prices;
-};

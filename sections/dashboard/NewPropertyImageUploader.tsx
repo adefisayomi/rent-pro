@@ -8,8 +8,8 @@ import useAlert from "@/hooks/useAlert";
 import { getMultipleImages } from "@/hooks/useGetImage";
 
 interface ImageUploaderProps {
-  setImages: (files: File[]) => void;
-  images: File[];
+  setImages: (files: (File | string)[]) => void;
+  images: (File | string)[];
 }
 
 const NewPropImagesUploader: React.FC<ImageUploaderProps> = ({ setImages, images }) => {
@@ -50,7 +50,7 @@ const NewPropImagesUploader: React.FC<ImageUploaderProps> = ({ setImages, images
 
   const handleDrop = (index: number) => {
     if (draggedIndex === null || draggedIndex === index) return;
-    
+
     const newImages = [...images];
     const [draggedItem] = newImages.splice(draggedIndex, 1);
     newImages.splice(index, 0, draggedItem);
@@ -67,6 +67,7 @@ const NewPropImagesUploader: React.FC<ImageUploaderProps> = ({ setImages, images
 
   return (
     <div className="w-full flex flex-col gap-6">
+      {/* Dropzone Area */}
       <div
         {...getRootProps()}
         className="w-full p-6 border-dashed bg-slate-50 flex items-center gap-2 flex-col justify-center border-2 border-primary h-48 rounded-lg cursor-pointer"
@@ -89,36 +90,40 @@ const NewPropImagesUploader: React.FC<ImageUploaderProps> = ({ setImages, images
         <p className="text-gray-600 text-[11px]">or drag photos here</p>
       </div>
 
+      {/* Image Preview */}
       {images.length > 0 && (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 w-full md:max-w-[85%] mx-auto">
           <AnimatePresence>
-            {images.map((file, index) => (
-              <motion.div
-                key={file.name}
-                draggable={true}
-                onDragStart={() => handleDragStart(index)}
-                onDragOver={handleDragOver}
-                onDrop={() => handleDrop(index)}
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.8 }}
-                transition={{ duration: 0.3 }}
-                className="relative group cursor-grab active:cursor-grabbing"
-              >
-                <img
-                  src={URL.createObjectURL(file)}
-                  alt={`Preview ${index}`}
-                  className="w-full h-24 object-cover rounded-md"
-                />
-                <button
-                  type="button"
-                  onClick={() => removeImage(index)}
-                  className="absolute top-1 right-1 w-6 h-6 p-1 flex items-center justify-center bg-white text-black rounded-full hover:bg-red-500 hover:text-white transition"
+            {images.map((image, index) => {
+              const imageUrl = typeof image === "string" ? image : URL.createObjectURL(image);
+              return (
+                <motion.div
+                  key={typeof image === "string" ? image : image.name}
+                  draggable={true}
+                  onDragStart={() => handleDragStart(index)}
+                  onDragOver={handleDragOver}
+                  onDrop={() => handleDrop(index)}
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.8 }}
+                  transition={{ duration: 0.3 }}
+                  className="relative group cursor-grab active:cursor-grabbing"
                 >
-                  <Trash2 className="w-4" />
-                </button>
-              </motion.div>
-            ))}
+                  <img
+                    src={imageUrl}
+                    alt={`Preview ${index}`}
+                    className="w-full h-24 object-cover rounded-md"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => removeImage(index)}
+                    className="absolute top-1 right-1 w-6 h-6 p-1 flex items-center justify-center bg-white text-black rounded-full hover:bg-red-500 hover:text-white transition"
+                  >
+                    <Trash2 className="w-4" />
+                  </button>
+                </motion.div>
+              );
+            })}
           </AnimatePresence>
         </div>
       )}

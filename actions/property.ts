@@ -7,6 +7,67 @@ import { newPropertyKeys, NewPropertySchemaType } from "@/sections/dashboard/for
 import { extractAllowedKeys } from "@/utils/extractAllowedKeys";
 import { currUser } from "./auth";
 import { uploadMultipleImages } from "./upload";
+import { revalidatePath } from "next/cache";
+import Routes from "@/Routes";
+import _ from "lodash";
+
+
+export async function updateProperty(propertyId: string, payload: Partial<NewPropertySchemaType>) {
+  try {
+    if (!propertyId || typeof propertyId !== "string") {
+      throw new Error("Invalid property ID");
+    }
+
+    const { data: user, message, success } = await currUser();
+    if (!success || !user?.uid) throw new Error(message || "Unauthorized request");
+
+    // Reference to the property document
+    const propertyRef = adminDB.collection(propertyKey).doc(propertyId);
+    const propertySnap = await propertyRef.get();
+
+    if (!propertySnap.exists) {
+      throw new Error("Property not found");
+    }
+
+    const existingProperty = propertySnap.data();
+
+    // Ensure the current user owns the property
+    if (existingProperty?.userId !== user.uid) {
+      throw new Error("Unauthorized to update this property");
+    }
+
+    // Extract only allowed fields
+    const data = extractAllowedKeys<Partial<NewPropertySchemaType>>(payload, newPropertyKeys);
+
+    let updatedImages: string[] = existingProperty.images || [];
+
+    if (Array.isArray(data.images) && data.images.length > 0) {
+      const newImageFiles = data.images.filter((img): img is File => img instanceof File);
+      const existingImageUrls = data.images.filter((img): img is string => typeof img === "string");
+
+      if (newImageFiles.length > 0) {
+        const res = await uploadMultipleImages(newImageFiles, user.uid);
+        if (!res.success) throw new Error(res?.message!);
+        updatedImages = [...existingImageUrls, ...res.data]; // Keep existing URLs and add new ones
+      } else {
+        updatedImages = existingImageUrls; // No new files, keep existing URLs
+      }
+    }
+
+    // Update the property document
+    await propertyRef.update({
+      ...data,
+      updatedAt: new Date(),
+      images: updatedImages, // Preserve and update images
+    });
+
+    return { success: true, message: "Property updated successfully" };
+  } catch (err: any) {
+    return errorMessage(err.message);
+  }
+}
+
+
 
 
 export async function createNewProperty(payload: NewPropertySchemaType) {
@@ -93,6 +154,37 @@ export async function getPropertyByUserId(userId: string) {
       return errorMessage(err.message);
     }
   }
+
+  export async function getCurrentUserProperties() {
+    try {
+      const { data: user, message, success } = await currUser();
+      if (!success || !user?.uid) throw new Error(message || "Unauthorized request");
+  
+      const propertiesRef = adminDB.collection(propertyKey);
+      const querySnapshot = await propertiesRef.where("userId", "==", user.uid).get();
+  
+      if (querySnapshot.empty) {
+        return { success: false, message: "No properties found for this user" };
+      }
+  
+      const properties = querySnapshot.docs.map((doc) => {
+        const data = doc.data();
+  
+        return {
+          id: doc.id,
+          ...data,
+          createdAt: data.createdAt?.toDate().toISOString() || null,
+          updatedAt: data.updatedAt?.toDate().toISOString() || null,
+        };
+      });
+  
+      return { success: true, data: properties };
+    } catch (err: any) {
+      return errorMessage(err.message);
+    }
+  }
+  
+  
   
 
 export async function deleteProperty(propertyId: string) {
@@ -118,6 +210,9 @@ export async function deleteProperty(propertyId: string) {
     } catch (err: any) {
       return errorMessage(err.message);
     }
+    finally{
+      revalidatePath(Routes.dashboard["professional tools"]["my properties"])
+    }
   }
 
 
@@ -135,7 +230,8 @@ export async function deleteProperty(propertyId: string) {
         return {
           ...data,
           id: doc.id,
-          createdAt: data.createdAt ? data.createdAt.toDate().toISOString() : null, // Convert Timestamp
+          createdAt: data.createdAt ? data.createdAt.toDate().toISOString() : null,
+          updatedAt: data.updatedAt ? data.updatedAt.toDate().toISOString() : null,
         };
       });
   
@@ -146,62 +242,69 @@ export async function deleteProperty(propertyId: string) {
   }
   
 
-  
+
+
   export async function getFilteredProperties(filters: Record<string, string | undefined>) {
     try {
-      let propertiesRef = adminDB.collection(propertyKey).orderBy("createdAt", "desc");
+      let query: FirebaseFirestore.Query = adminDB.collection(propertyKey).orderBy("createdAt", "desc");
   
-      const conditions: [string, FirebaseFirestore.WhereFilterOp, any][] = [];
+      // Fetch all properties from Firestore
+      const querySnapshot = await query.get();
+      let finalProperties: {
+        id: string;
+        createdAt: string | null;
+        updatedAt: string | null;
+        country: string;
+        state: string;
+        city: string;
+        address: string;
+        price: number;
+        [key: string]: any; // Allow extra properties
+      }[] = querySnapshot.docs.map((doc) => {
+        const data = doc.data();
   
-      if (filters.min) conditions.push(["price", ">=", Number(filters.min)]);
-      if (filters.max) conditions.push(["price", "<=", Number(filters.max)]);
-      if (filters.type) conditions.push(["listedIn", "==", filters.type]);
-      if (filters.country) conditions.push(["country", "==", filters.country]);
-      if (filters.state) conditions.push(["state", "==", filters.state]);
-      if (filters.city) conditions.push(["city", "==", filters.city]);
-      if (filters.bedrooms && !isNaN(Number(filters.bedrooms))) {
-        conditions.push(["bedrooms", "==", Number(filters.bedrooms)]);
-      }
-      if (filters.propertyType) conditions.push(["type", "==", filters.propertyType]);
-  
-      let finalProperties: any[] = [];
-  
-      if (conditions.length === 0) {
-        // If no filters are provided, return all properties sorted by latest
-        const querySnapshot = await propertiesRef.get();
-        finalProperties = querySnapshot.docs.map((doc) => ({
-          ...doc.data(),
+        return {
           id: doc.id,
-          createdAt: doc.data().createdAt ? doc.data().createdAt.toDate().toISOString() : null,
-        }));
-      } else {
-        // If filters are provided, apply OR filtering logic
-        let resultsSet = new Set(); // To store unique property IDs
+          createdAt: data.createdAt?.toDate?.()?.toISOString() || null,
+          updatedAt: data.updatedAt?.toDate?.()?.toISOString() || null,
+          country: data.country ?? "",
+          state: data.state ?? "",
+          city: data.city ?? "",
+          address: data.address ?? "",
+          price: Number(data.price) || 0, // Ensure price is always a number
+          ...data,
+        };
+      });
   
-        for (const [field, op, value] of conditions) {
-          let querySnapshot = await propertiesRef.where(field, op, value).get();
-  
-          querySnapshot.forEach((doc) => {
-            if (!resultsSet.has(doc.id)) {
-              resultsSet.add(doc.id);
-              finalProperties.push({
-                ...doc.data(),
-                id: doc.id,
-                createdAt: doc.data().createdAt ? doc.data().createdAt.toDate().toISOString() : null,
-              });
-            }
-          });
-        }
+      // ✅ Ensure the array is correctly structured
+      if (!Array.isArray(finalProperties) || finalProperties.some((item) => typeof item !== "object")) {
+        throw new Error("finalProperties is not a valid array of objects");
       }
   
-      if (finalProperties.length === 0) {
-        return { success: false, message: "No properties found" };
-      }
+      // ✅ Ensure _.filter() returns only valid objects
+      finalProperties = _.filter(finalProperties, (property): property is typeof finalProperties[number] => {
+        if (!property || typeof property !== "object") return false;
   
-      return { success: true, data: finalProperties };
+        const propertyPrice = Number(property.price);
+        const minPrice = filters.min && Number(filters.min) > 0 ? Number(filters.min) : undefined;
+        const maxPrice = filters.max && Number(filters.max) > 0  ? Number(filters.max) : undefined;
+  
+        return (
+          (!filters.country || property.country?.toLowerCase().includes(filters.country!.toLowerCase())) &&
+          (!filters.state || property.state?.toLowerCase().includes(filters.state!.toLowerCase())) &&
+          (!filters.city || property.city?.toLowerCase().includes(filters.city!.toLowerCase())) &&
+          (!filters.address || property.address?.toLowerCase().includes(filters.address!.toLowerCase())) &&
+          (minPrice === undefined || propertyPrice >= minPrice) &&
+          (maxPrice === undefined || propertyPrice <= maxPrice)
+        );
+      });
+  
+      return finalProperties.length > 0
+        ? { success: true, data: JSON.parse(JSON.stringify(finalProperties)) }
+        : { success: false, message: "No properties found" };
     } catch (err: any) {
       console.error("Error fetching filtered properties:", err);
-      return { success: false, message: err.message };
+      return { success: false, message: err.message || "An unexpected error occurred" };
     }
   }
   

@@ -8,7 +8,7 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination";
 import { NewPropertySchemaType } from "@/sections/dashboard/formSchemas";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Table,
   TableBody,
@@ -19,7 +19,7 @@ import {
 } from "@/components/ui/table";
 import DropDownComp from "@/components/DropdownComp";
 import { Button } from "@/components/ui/button";
-import { Ellipsis, Eye, Pen, Search, Trash2 } from "lucide-react";
+import { Ellipsis, Eye, Pen, Route, Search, Trash2 } from "lucide-react";
 import { _favouriteSort } from "@/_data/images";
 import dayjs from "dayjs";
 import Image from "next/image";
@@ -32,6 +32,19 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
+import { useRouter } from "next/navigation";
+import Routes from "@/Routes";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
+import { deleteProperty } from "@/actions/property";
 
 
 
@@ -42,11 +55,12 @@ export default function MyProperties({
 }) {
   const itemsPerPage = 5; // Number of properties per page
   const totalProperty = properties?.length || 0;
-  const totalPage = properties && properties.length <= itemsPerPage ? 1 : Math.ceil(properties.length / itemsPerPage);
+  const totalPage = !properties ? 0 : properties && properties.length <= itemsPerPage ? 1 : Math.ceil(properties.length / itemsPerPage);
 
   const [page, setPage] = useState(1);
   const [sort, setSort] = useState("newest");
   const { setAlert } = useAlert();
+  const router = useRouter()
 
   const nextPage = () => page < totalPage && setPage(page + 1);
   const prevPage = () => page > 1 && setPage(page - 1);
@@ -61,10 +75,22 @@ export default function MyProperties({
   };
 
   // Get the properties to display on the current page
-  const currentProperties = properties.slice(
+  const currentProperties = properties && properties.length > 0 ? properties.slice(
     (page - 1) * itemsPerPage,
     page * itemsPerPage
-  );
+  ) : []
+
+  const [deleting, setDeleting] = useState(false)
+  const handleDelete = async (id: string) => {
+    const {success, message} = await deleteProperty(id)
+    if (!success) {
+      setAlert(message, 'error')
+    }
+    else {
+      setAlert('Propery deleted successfuly', 'success')
+    }
+    return setDeleting(false)
+  }
 
   return (
     <div className="w-full flex flex-col">
@@ -115,8 +141,8 @@ export default function MyProperties({
             </TableHeader>
 
             <TableBody>
-              {currentProperties.map((pro, index) => (
-                <TableRow key={index}>
+              {currentProperties && currentProperties.length > 0 && currentProperties.map((pro, index) => (
+                <TableRow key={index} className="border-b">
                   <TableCell className="flex items-start gap-2">
                     <Image
                       src={pro.images[0] as string || ""}
@@ -129,7 +155,7 @@ export default function MyProperties({
                     />
                     <div className="flex flex-col gap-1 items-start">
                       <h4 className="text-[11px] font-semibold capitalize text-gray-600">{pro.title}</h4>
-                      <h4 className="text-[11px] font-medium text-muted-foreground">{pro.address}</h4>
+                      <h4 className="text-[11px] font-medium text-muted-foreground truncate max-w-[200px]">{pro.address}</h4>
                       <h4 className="text-[11px] font-semibold text-gray-700">
                         {currency(pro.price, { symbol: "₦", precision: 2 }).format()}
                       </h4>
@@ -164,18 +190,48 @@ export default function MyProperties({
                       </PopoverTrigger>
 
                       <PopoverContent className="w-32 flex rounded-t-none flex-col items-center p-0">
-                        <Button variant='ghost' className="border-b w-full rounded-none text-[11px] flex items-center gap-2 text-gray-700 ">
+                        <Button onClick={() => router.push(`${Routes.listing}/${pro.id}`)} variant='ghost' className="border-b w-full rounded-none text-[11px] flex items-center gap-2 text-gray-700 ">
                           <Eye className="w-4" />
                           View
                         </Button>
-                        <Button variant='ghost' className="border-b w-full rounded-none text-[11px] flex items-center gap-2 text-gray-700">
+                        <Button onClick={() => router.push(`${Routes.dashboard["professional tools"]["my properties"]}/edit/${pro.id}`)} variant='ghost' className="border-b w-full rounded-none text-[11px] flex items-center gap-2 text-gray-700">
                           <Pen className="w-4" />
                           Edit
                         </Button>
-                        <Button variant='ghost' className=" w-full rounded-t-none rounded-b-lg text-[11px] flex items-center gap-2 text-gray-700">
-                          <Trash2 className="w-4" />
-                          Delete
-                        </Button>
+
+                        <Dialog>
+                          <DialogTrigger asChild>
+                            <Button variant='ghost' className=" w-full rounded-t-none rounded-b-lg text-[11px] flex items-center gap-2 text-gray-700">
+                              <Trash2 className="w-4" />
+                              Delete
+                            </Button>
+                          </DialogTrigger>
+                          <DialogContent className="sm:max-w-md p-6 rounded-lg shadow-lg z-[100]" overlayClassName="z-[100]">
+                            <DialogHeader>
+                              <DialogTitle className="text-sm font-semibold text-gray-900">
+                                Delete Property
+                              </DialogTitle>
+                              <DialogDescription className="text-xs text-gray-600">
+                                Are you sure you want to delete this property? This action <span className="font-semibold text-red-600">cannot be undone</span> and will permanently remove all associated data.
+                              </DialogDescription>
+                            </DialogHeader>
+
+                            <div className="grid gap-4 py-4">
+                              <p className="text-xs text-gray-500">
+                                If you're unsure, you can cancel this action and review your decision.
+                              </p>
+                            </div>
+
+                            <DialogFooter className="flex justify-end gap-2">
+                            <DialogClose asChild>
+                              <Button variant="outline">Cancel</Button>
+                            </DialogClose>
+                              
+                              <Button loading={deleting} onClick={ async () => await handleDelete(pro.id)} variant="destructive">Delete Property</Button>
+                            </DialogFooter>
+                          </DialogContent>
+
+                        </Dialog>
                       </PopoverContent>
                     </Popover>
                   </TableCell>

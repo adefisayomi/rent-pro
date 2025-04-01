@@ -194,6 +194,16 @@ export const _favouriteSort = [
   "price high",
 ]
 
+export const _reviewsSort = [
+  "Newest",
+  "Oldest",
+  "Most relevant",
+  "Highest rated",
+  "Lowest rated",
+  "Most helpful",
+];
+
+
 export const _dummyData = [
   {
     id: "1",

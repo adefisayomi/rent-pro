@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 
 
 
-export default function DropDownComp({title, component, className}: {title: string, component: ReactNode, className?: string}) {
+export default function DropDownComp({title, component, className}: {title: string | any, component: ReactNode, className?: string}) {
     const [open , setOpen] = useState(false)
     return (
       <Popover open={open} onOpenChange={setOpen}>

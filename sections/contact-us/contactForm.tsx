@@ -13,6 +13,8 @@ import {
 import { Input } from "@/components/ui/input"
 import { contactFormSchema } from "./formSchema"
 import { Textarea } from "@/components/ui/textarea"
+import useAlert from "@/hooks/useAlert"
+import { sendEmail } from "@/actions/sendEmail"
 
 
 
@@ -22,10 +24,19 @@ export default function ContactUsForm () {
         resolver: yupResolver(contactFormSchema),
         defaultValues: {}
       })
-    // ---
+
+    const {setAlert} = useAlert()
     async function onSubmit(data: yup.InferType<typeof contactFormSchema>) {
-        const {email} = data
-        await console.log(email)
+        const {email, message, name, desiredDate, desiredTime} = data
+        try {
+            const res = await sendEmail(email, name, message)
+            if (!res.success && res.message) throw new Error(res.message)
+            setAlert('email sent', 'success')
+            return form.reset()
+        }
+        catch(err: any) {
+            return setAlert(err.message, 'error')
+        }
       }
 
     return (
@@ -105,7 +116,7 @@ export default function ContactUsForm () {
                 />
 
 
-                <Button className="w-full md:h-11">Send</Button>
+                <Button type='submit' loading={form.formState.isSubmitting} className="w-full md:h-11">Send</Button>
 
             </form>
         </Form>
