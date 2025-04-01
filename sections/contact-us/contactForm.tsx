@@ -15,6 +15,7 @@ import { contactFormSchema } from "./formSchema"
 import { Textarea } from "@/components/ui/textarea"
 import useAlert from "@/hooks/useAlert"
 import { sendEmail } from "@/actions/sendEmail"
+import { useNotificationStore } from "@/contexts/notificationStore"
 
 
 
@@ -26,13 +27,21 @@ export default function ContactUsForm () {
       })
 
     const {setAlert} = useAlert()
+    const {addNotification} = useNotificationStore()
     async function onSubmit(data: yup.InferType<typeof contactFormSchema>) {
         const {email, message, name, desiredDate, desiredTime} = data
         try {
             const res = await sendEmail(email, name, message)
             if (!res.success && res.message) throw new Error(res.message)
             setAlert('email sent', 'success')
-            return form.reset()
+            addNotification('You sent us a message', 'success')
+            return form.reset({
+                email: "",
+                name: "",
+                message: "",
+                desiredDate: "",
+                desiredTime: "",
+              });
         }
         catch(err: any) {
             return setAlert(err.message, 'error')
