@@ -10,6 +10,8 @@ import { uploadMultipleImages } from "./upload";
 import { revalidatePath } from "next/cache";
 import Routes from "@/Routes";
 import _ from "lodash";
+import sharp from 'sharp'
+import path from "path";
 
 
 export async function updateProperty(propertyId: string, payload: Partial<NewPropertySchemaType>) {
@@ -107,6 +109,9 @@ export async function createNewProperty(payload: NewPropertySchemaType) {
       return { success: true, message: "Property created successfully", data: { id: newPropertyRef.id } };
     } catch (err: any) {
       return errorMessage(err.message);
+    }
+    finally {
+      revalidatePath("/")
     }
   }
   
@@ -308,3 +313,24 @@ export async function deleteProperty(propertyId: string) {
     }
   }
   
+
+  const addWatermarkToImage = async (imageBuffer: Buffer): Promise<Buffer> => {
+    // Define the path to the logo inside the 'public' folder
+    const logoPath = path.join(process.cwd(), 'public', 'logo-light.svg');
+
+    // Load the watermark logo and resize it (you can adjust this as needed)
+    const watermark = await sharp(logoPath)
+        .resize(100, 100) // Adjust the size of the logo
+        .toBuffer();
+
+    // Apply the watermark to the original image
+    return await sharp(imageBuffer)
+        .composite([
+            {
+                input: watermark,
+                gravity: 'southeast', // Position the watermark at the bottom-right corner
+                blend: 'overlay', // Overlay blend for better visibility
+            },
+        ])
+        .toBuffer();
+};

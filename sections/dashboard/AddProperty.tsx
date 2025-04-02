@@ -403,8 +403,8 @@ export default function AddNewProperty () {
                         />
                     </div>
 
-                    <div className="w-full h-72 border bg-slate-50">
-                    <LeafletMap />
+                    <div className="w-full h-80 border bg-slate-50 rounded-lg">
+                    <LeafletMap className="h-80 rounded-lg"/>
 
                     </div>
                 </div>

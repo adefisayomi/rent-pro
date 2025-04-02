@@ -3,7 +3,7 @@ import { ReactNode } from "react";
 import RootLayout from "@/sections/layout";
 
 export const metadata: Metadata = {
-  title: "Gallery - ",
+  title: "Gallery ",
   description: "checkout our gallery."
 };
 

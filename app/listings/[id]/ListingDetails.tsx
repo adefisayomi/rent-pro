@@ -104,7 +104,7 @@ const ImageInformation = ({ property }: { property: NewPropertySchemaType }) => 
         <h1 className="text-2xl capitalize font-bold text-slate-800 text-start">
           {property?.title ?? "No Title"}
         </h1>
-        <p className="text-xs text-muted-foreground">
+        <p className="text-xs text-muted-foreground whitespace-pre-wrap">
           {property?.description ?? "No description available"}
         </p>
 

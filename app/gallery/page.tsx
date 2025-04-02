@@ -43,14 +43,14 @@ export default function Gallery() {
     <div className="mx-auto w-full flex items-center flex-col gap-6 pt-6 pb-10 bg-slate-900">
       <HomeSearchBox />
 
-      <div className="w-full grid sm:grid-cols-3 grid-cols-1 lg:grid-cols-5 gap-1">
+      <div className="w-full grid sm:grid-cols-3 grid-cols-2 px-1  lg:grid-cols-5 gap-1">
         {[..._properties, ..._properties, ..._properties].map(({ image }, index) => (
           <Dialog key={index} onOpenChange={(open) => open && setSelectedIndex(index)}>
             <DialogTrigger asChild>
               <img
                 src={image}
                 alt={`Property ${index + 1}`}
-                className="w-full h-full flex object-cover aspect-square cursor-pointer"
+                className="w-full h-full flex object-cover aspect-square rounded-lg md:rounded-none cursor-pointer"
               />
             </DialogTrigger>
 
