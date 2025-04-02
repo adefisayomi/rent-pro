@@ -12,7 +12,6 @@ import {
 import useAlert from "@/hooks/useAlert";
 import { Skeleton } from "@/components/ui/skeleton";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { _properties } from "@/_data/images";
 import Autoplay from "embla-carousel-autoplay"
 import { usePathname, useRouter } from "next/navigation";
 import { NewPropertySchemaType } from "../dashboard/formSchemas";
@@ -83,22 +82,29 @@ export default function SingleProperty({ property }: { property: NewPropertySche
 export function ImageSlider({ images = [], propertyId }: { images?: string[], propertyId: string }) {
   const randomDelay = useMemo(() => Math.floor(Math.random() * (5000 - 2000 + 1)) + 2000, []);
   const pluginRef = useRef(Autoplay({ delay: randomDelay, stopOnInteraction: true }));
-  const [api, setApi] = useState<CarouselApi | null>(null);
   const [modalApi, setModalApi] = useState<CarouselApi | null>(null);
-  const [current, setCurrent] = useState(0);
   const [loading, setLoading] = useState(true);
   // 
+  const [api, setApi] = useState<CarouselApi>();
+  const [current, setCurrent] = useState(0);
+  const [count, setCount] = useState(0);
+  const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
+
   useEffect(() => {
-    if (!modalApi) return;
-  
-    modalApi.scrollTo(current); // Set the initial slide position
-    const onSelect = () => setCurrent(modalApi.selectedScrollSnap());
-    modalApi.on("select", onSelect);
-  
-    return () => {
-      modalApi.off("select", onSelect);
-    };
-  }, [modalApi, current]);
+    if (!api) return;
+
+    setCount(api.scrollSnapList().length);
+    api.on("select", () => {
+      setCurrent(api.selectedScrollSnap());
+    });
+  }, [api]);
+
+  // Scroll to the selected image when the modal opens
+  useEffect(() => {
+    if (api && selectedIndex !== null) {
+      api.scrollTo(selectedIndex);
+    }
+  }, [api, selectedIndex]);
 
   return (
     <div>
@@ -129,7 +135,7 @@ export function ImageSlider({ images = [], propertyId }: { images?: string[], pr
             </CarouselItem>
           ) : (
             images.map((image, index) => (
-              <Dialog key={index}>
+              <Dialog key={index} onOpenChange={(open) => open && setSelectedIndex(index)}>
                 <DialogTrigger
                   asChild
                   onClick={() => setCurrent(index)}
@@ -150,34 +156,44 @@ export function ImageSlider({ images = [], propertyId }: { images?: string[], pr
                 </DialogTrigger>
 
                 <DialogContent
-                  overlayClassName="bg-black/90 z-[100]"
-                  className="md:h-[70vh] h-[80vh] w-full z-[100] p-0 sm:max-w-4xl bg-transparent border-0"
+                  overlayClassName="bg-black/95 z-[100]"
+                  className="w-full z-[100] bg-transparent flex items-center justify-center border-0 sm:max-w-4xl h-[70vh] p-0"
                 >
-                  <Carousel
-                    setApi={setModalApi}
-                    className="w-full h-full"
-                  >
-                    <CarouselContent className="h-full">
-                      {images.map((img, idx) => (
-                        <CarouselItem key={idx} className="flex items-center justify-center h-full">
-                          <Image
-                            src={img}
-                            alt={`Modal Image ${idx + 1}`}
-                            width={800}
-                            height={800}
-                            className="w-auto max-h-full object-contain"
-                            loading="lazy"
-                            unoptimized
-                          />
+                  <Carousel setApi={setApi} className="w-full max-w-2xl">
+                    <CarouselContent>
+                      {images.map((image, index) => (
+                        <CarouselItem key={index}>
+                          <div className="p-1">
+                            <img
+                              src={image}
+                              alt={`Property ${index + 1}`}
+                              className="w-full h-full flex object-cover aspect-square"
+                            />
+                          </div>
                         </CarouselItem>
                       ))}
                     </CarouselContent>
-                    <CarouselPrevious variant="ghost" className="bg-transparent text-white sm:-left-10" />
-                    <CarouselNext variant="ghost" className="bg-transparent text-white sm:-right-10" />
-                  </Carousel>
-                  <div className="py-2 text-center text-white text-[11px]">
-                    Slide {current + 1} of {images.length}
+                  
+
+                    {/* Dot Slider */}
+                    <div className="w-full flex items-center justify-center md:justify-between p-2">
+                      <div className="relative items-center gap-4 hidden md:flex">
+                      <CarouselPrevious className="left-0 size-6"/>
+                      <CarouselNext className="left-10 size-6"/>
+                      </div>
+                    <div className="flex justify-center space-x-2 mt-4">
+                      {images.map((_, index) => (
+                        <button
+                          key={index}
+                          className={`w-2 h-[3px] rounded-full transition-all ${
+                            index === current ? "bg-white" : "bg-gray-500"
+                          }`}
+                          onClick={() => api?.scrollTo(index)}
+                        />
+                      ))}
+                    </div>
                   </div>
+                  </Carousel>
                 </DialogContent>
               </Dialog>
             ))

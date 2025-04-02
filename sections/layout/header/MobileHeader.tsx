@@ -28,7 +28,6 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion"
 import Routes from "@/Routes";
-import { cn } from "@/lib/utils";
 import { useRouter } from "next/navigation";
 
 
@@ -36,7 +35,7 @@ import { useRouter } from "next/navigation";
 export default function MobileHeader() {
   const [open, setOpen] = useState(false);
   const [isSticky, setIsSticky] = useState(true);
-  const { user, loading } = useAuthStore();
+  const { user } = useAuthStore();
 
   useEffect(() => {
     let timeout: NodeJS.Timeout;
@@ -56,7 +55,6 @@ export default function MobileHeader() {
     };
   }, []);
 
-  if (loading) return <LoaderCircle className="w-4 h-4 animate-spin" />;
 
   return (
     <div

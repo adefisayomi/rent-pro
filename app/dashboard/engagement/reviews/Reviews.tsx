@@ -46,7 +46,7 @@ export default function Reviews ({title, reviews}: {title: string, reviews: any[
             <h2 className="text-xs font-semibold capitalize pb-4">{title}</h2>
 
             <div className="border rounded-lg min-h-[400px] flex flex-col">
-                <div className="w-full flex items-center justify-between p-2 border-b">
+                <div className="w-full flex flex-col md:flex-row items-start gap-4 md:gap-2 md:items-center justify-between p-4 md:p-2 border-b">
                     <p className="text-[11px] text-muted-foreground">
                         Showing <span className="font-bold">{`${1} - ${5}`}</span> of <span className="font-bold">{20}</span> results 
                     </p>
@@ -99,7 +99,7 @@ function SingleReview () {
     const {user} = useAuthStore()
     const avatarFallback = user?.displayName?.slice(0, 2) || user?.email?.slice(0, 2) || "G";
   return (
-    <div className="w-full flex items-start gap-2">
+    <div className="w-full flex flex-col md:flex-row items-start gap-2">
         <HoverCard>
             <HoverCardTrigger asChild>
                 <Avatar className="w-10 h-10 bg-slate-100 cursor-pointer">

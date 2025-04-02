@@ -25,8 +25,8 @@ export default function Message ({title}: {title: string}) {
             <h2 className="text-xs font-semibold capitalize pb-4">{title}</h2>
 
             <div className="border rounded-lg min-h-[75vh] grid grid-cols-3">
-                <div className="border-r col-span-1 h-full"></div>
-                <div className="col-span-2 h-full flex flex-col">
+                <div className="border-r col-span-1 h-full hidden md:flex"></div>
+                <div className="col-span-3 md:col-span-2 h-full flex flex-col">
                     <MessageBoxHeader />
 
                     <div className="w-full flex-grow flex flex-col overflow-y-auto max-h-[60vh] pb-10 pt-5 gap-4">
@@ -59,9 +59,9 @@ export default function Message ({title}: {title: string}) {
 const MessageBox = () => {
     const [open, setOpen] = useState(false)
     return (
-        <div className="w-full p-4 bg-slate-100 rounded-br-lg flex items-center gap-3">
-            <Popover open={open} onOpenChange={setOpen}>
-                <PopoverTrigger asChild>
+        <div className="w-full p-4 bg-slate-100 rounded-br-lg flex flex-col md:flex-row items-center gap-3">
+            <Popover open={open} onOpenChange={setOpen} >
+                <PopoverTrigger asChild className="hidden md:flex">
                 <button><Smile className='w-6 text-gray-600'/></button>
                 </PopoverTrigger>
                 <PopoverContent className="w-fit"><EmojiPicker open={open}/></PopoverContent>
@@ -69,7 +69,13 @@ const MessageBox = () => {
 
             <Input placeholder="Type message..." className="bg-background h-11 border-none rounded-3xl" />
 
-            <span className="flex items-center gap-3 ">
+            <span className="flex items-center justify-between w-full md:w-fit gap-3 ">
+                <Popover open={open} onOpenChange={setOpen} >
+                    <PopoverTrigger asChild className="flex md:hidden">
+                    <button><Smile className='w-6 text-gray-600'/></button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-fit"><EmojiPicker open={open}/></PopoverContent>
+                </Popover>
                 <button><Paperclip className='w-5 text-gray-600'/></button>
                 <button><Mic className='w-5 text-gray-600'/></button>
                 <button><Send className='w-5 text-gray-600'/></button>

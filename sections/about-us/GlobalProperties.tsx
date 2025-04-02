@@ -14,14 +14,14 @@ export default function GlobalProperties () {
 
     return (
         <div className="w-full grid grid-cols-1 md:grid-cols-2 place-items-start max-w-8xl mx-auto py-20 gap-10">
-            <Image
+           <Image
                 src="/about-us-global.svg"
                 alt="about-image"
                 draggable={false}
-                className=" flex w-full"
-                width={500} // Set an appropriate width
-                height={500} // Set an appropriate height
-                loading="lazy"
+                className="flex w-full"
+                width={500}
+                height={500}
+                priority // Ensures it's loaded quickly
                 decoding="async"
             />
 
