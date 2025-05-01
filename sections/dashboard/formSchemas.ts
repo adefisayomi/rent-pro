@@ -24,13 +24,26 @@ export const socialsFormSchema = yup.object({
 });
 export type SocialsType = yup.InferType<typeof socialsFormSchema>;
 
+const phoneRegExp = /^[+\d]?(?:[\d-.\s()]*)$/;
 export const accountInformationSchema = yup.object().shape({
     firstName: yup.string().required('First name is required').trim().min(1, 'First name cannot be empty'),
     lastName: yup.string().required('Last name is required').trim().min(1, 'Last name cannot be empty'),
-    // username: yup.string().optional().trim(),
-    // gender: yup.string().optional(),
+    username: yup.string().optional().trim(),
+    gender: yup.string().optional(),
     email: yup.string().email('Must be a valid email').required('Email is required').trim(),
-    phone: yup.string().optional(),
+    phone: yup
+    .string()
+    .optional()
+    .matches(phoneRegExp, 'Invalid phone number')
+    .nullable()
+    .transform(value => (value === '' ? null : value)),
+
+  whatsapp: yup
+    .string()
+    .optional()
+    .matches(phoneRegExp, 'Invalid WhatsApp number')
+    .nullable()
+    .transform(value => (value === '' ? null : value)),
   });
 
   export type AccountinformationType = yup.InferType<typeof accountInformationSchema>

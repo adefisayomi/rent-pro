@@ -22,6 +22,12 @@ const auth = getAuth(app)
 const googleProvider = new GoogleAuthProvider();
 const facebookProvider = new FacebookAuthProvider();
 
+if (typeof window !== "undefined" && process.env.NEXT_PUBLIC_ENV === "development") {
+  // @ts-ignore
+  auth.settings.appVerificationDisabledForTesting = true;
+}
+
+
 export { app, storage, db, auth, googleProvider, facebookProvider};
 
 export const resume_data_key = 'resume-data'

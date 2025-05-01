@@ -484,7 +484,7 @@ export default function AddNewProperty () {
                 {/* Select Amenities */}
                 <div className="w-full bg-white flex flex-col gap-5  p-6 rounded-sm border">
                     <h2 className="text-xs font-semibold capitalize pb-2">select amenities</h2>
-                    <div className="w-full grid grid-cols-4 gap-4">
+                    <div className="w-full grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-4">
                         {Object.entries(_generalAmenities).map(([category, amenities], index) => (
                             <div key={index} className="flex flex-col gap-3">
                             <FormLabel className="text-[11px] text-gray-700 capitalize font-semibold">{amenities.label}</FormLabel>

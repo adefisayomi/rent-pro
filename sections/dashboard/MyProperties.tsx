@@ -168,7 +168,6 @@ export default function MyProperties({
 
                   <TableCell className="relative">
                     <Button
-                      onClick={() => handleLoveClick(pro.id)}
                       variant={'outline'}
                       size="sm"
                       className={cn("flex items-center font-normal capitalize text-[11px] gap-2 rounded-2xl absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2", pro.published ? 'border-primary bg-slate-100' : 'border-destructive bg-red-100')}

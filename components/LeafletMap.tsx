@@ -34,7 +34,7 @@ const LeafletMapComponent: React.FC<LeafletMapComponentProps> = ({ position = DE
       //   width: "100%",
       //   zIndex: 1,
       // }}
-      className={cn("w-full z-1 h-[600px] max-h-[100vh]", className)}
+      className={cn("w-full z-[10] h-[600px] max-h-[100vh]", className)}
     >
       <TileLayer
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"

@@ -1,4 +1,6 @@
+import { getUserDetails } from "@/actions/userInformation";
 import AccountInformation from "@/sections/dashboard/AccountInformation";
+import { AccountinformationType } from "@/sections/dashboard/formSchemas";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -8,5 +10,6 @@ export const metadata: Metadata = {
   
 
 export default async function Page () {
-    return <AccountInformation title="account information"/>
+  const userDetails = (await getUserDetails()).data as AccountinformationType
+    return <AccountInformation title="account information" userDetails={userDetails as AccountinformationType}/>
 }

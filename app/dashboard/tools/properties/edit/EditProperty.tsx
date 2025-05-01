@@ -414,8 +414,8 @@ export default function EditProperty ({property}: {property: NewPropertySchemaTy
                         />
                     </div>
 
-                    <div className="w-full h-72 border bg-slate-50">
-                    <LeafletMap />
+                    <div className="w-full h-80 border rounded-lg bg-slate-50">
+                    <LeafletMap className="h-80 rounded-lg"/>
 
                     </div>
                 </div>
