@@ -1,5 +1,5 @@
 import { getNotifications } from "@/actions/notification";
-import { NotificationType, SocialsType } from "@/sections/dashboard/formSchemas";
+import { NotificationType } from "@/sections/dashboard/formSchemas";
 import Notifications from "@/sections/dashboard/notifications";
 import { Metadata } from "next";
 

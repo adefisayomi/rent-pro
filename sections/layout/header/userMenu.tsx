@@ -17,6 +17,7 @@ const NoUser = memo(() => (
   <Link href={Routes.login}>
     <Button className="md:w-fit w-full">Sign-In / Create account</Button>
   </Link>
+  
 ));
 NoUser.displayName = "NoUser";
 
@@ -48,7 +49,7 @@ const UserMenu = memo(() => {
   return isDesktop ? (
     <Popover>
       <PopoverTrigger asChild>
-        <Avatar className="w-10 h-10 border-2 border-primary p-[2px] cursor-pointer">
+        <Avatar className="w-10 h-10 border-2 border-muted p-[1px] cursor-pointer ">
           <AvatarImage
             src={user.photoURL || ""}
             className="w-full h-full object-cover rounded-full"
@@ -59,8 +60,8 @@ const UserMenu = memo(() => {
       </PopoverTrigger>
       <PopoverContent className="w-[400px] flex flex-col p-0 mr-5" sideOffset={15}>
         <div className="p-4 flex items-start gap-2">
-          <Avatar className="w-12 h-11 border-2 px-[2px]">
-            <AvatarImage src={user.photoURL || ""} alt="User Avatar" />
+          <Avatar className="w-11 h-11 border-2 border-muted p-[1px]">
+            <AvatarImage className="w-full h-full object-cover rounded-full" src={user.photoURL || ""} alt="User Avatar" />
             <AvatarFallback className="uppercase text-sm">{avatarFallback}</AvatarFallback>
           </Avatar>
           <div className="flex flex-col gap-2 w-full">
@@ -91,10 +92,11 @@ const UserMenu = memo(() => {
           </div>
         </div>
         <div className="w-full flex items-center justify-center border-t p-4 bg-muted rounded-b-md">
-          <p className="text-[10px] text-muted-foreground">RentHouse &copy; 2024 All Rights Reserved.</p>
+          <p className="text-[10px] text-muted-foreground">RentCreeb &copy; 2024 All Rights Reserved.</p>
         </div>
       </PopoverContent>
     </Popover>
+    
   ) : (
     <div className="grid grid-cols-2 gap-4 w-full">
       <Button
@@ -110,6 +112,7 @@ const UserMenu = memo(() => {
         Sign-Out
       </Button>
     </div>
+    
   );
 });
 

@@ -65,15 +65,6 @@ export default function MyProperties({
   const nextPage = () => page < totalPage && setPage(page + 1);
   const prevPage = () => page > 1 && setPage(page - 1);
 
-  const handleLoveClick = async (propertyId: string) => {
-    if (!propertyId) return;
-
-    const { data, success } = await addToFavourites(propertyId);
-    if (success) {
-      setAlert("Removed from favourites", "success");
-    }
-  };
-
   // Get the properties to display on the current page
   const currentProperties = properties && properties.length > 0 ? properties.slice(
     (page - 1) * itemsPerPage,

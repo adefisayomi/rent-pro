@@ -28,7 +28,7 @@ export default async function Index() {
             <h2 className="text-xl md:text-3xl capitalize font-bold text-center">comfort living solution</h2>
           </div>
 
-          <div className="w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 max-w-8xl mx-auto">
+          <div className="w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 px-2 gap-4 max-w-8xl mx-auto">
             {
               latestProperties && latestProperties.length > 0 && latestProperties.slice(0, 4).map((property, index) => (
                 <SingleProperty property={property as any} key={index} />

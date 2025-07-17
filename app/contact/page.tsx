@@ -44,11 +44,11 @@ const ContactInfo = () => (
         text="+234 234 567 823"
       />
       <ContactLink
-        href="mailto:info@renthouse.com"
+        href="mailto:info@rentcreeb.com"
         ariaLabel="Our email"
         title="email"
         icon={<Mail className="w-4 h-4 text-primary" />}
-        text="info@renthouse.com"
+        text="info@rentcreeb.com"
       />
       <ContactLink
         href="https://www.google.com/maps"

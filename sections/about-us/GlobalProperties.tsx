@@ -7,9 +7,6 @@ import Image from "next/image";
 import Link from "next/link";
 
 
-const image1="https://media.gettyimages.com/id/1447708518/photo/modern-villa-exterior-in-summer.jpg?s=612x612&w=gi&k=20&c=webbeYAoRdtYjW_NpBu7gTJIC_5ypK_pRRTorsmuY0Q="
-const image2= "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTMYopneXydH1Tj-HVI4vtdHy-PKAw_HOIggg&s"
-
 export default function GlobalProperties () {
 
     return (

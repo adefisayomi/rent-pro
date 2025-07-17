@@ -1,10 +1,12 @@
 "use server"
 
 import { errorMessage, userKey } from "@/constants";
-import { adminDB } from "@/utils/firebaseAdmin";
+import { adminAuth, adminDB } from "@/utils/firebaseAdmin";
 import { AccountinformationType } from "@/sections/dashboard/formSchemas";
 import { extractAllowedKeys } from "@/utils/extractAllowedKeys";
 import { currUser } from "./auth";
+import { revalidatePath } from "next/cache";
+import Routes from "@/Routes";
 
 
 export async function updateUserDetails (payload: Partial<AccountinformationType>) {
@@ -32,6 +34,9 @@ export async function updateUserDetails (payload: Partial<AccountinformationType
    } catch (err: any) {
      return errorMessage(err.message);
    }
+   finally {
+    revalidatePath(Routes.dashboard["account management"]["account information"], 'page')
+   }
 }
 
 export async function getUserDetails () {
@@ -58,3 +63,64 @@ export async function getUserDetails () {
         return errorMessage(err.message);
       }
   }
+
+  const REQUIRED_FIELDS = {
+  auth: ["displayName", "email", "photoURL", "phoneNumber", "emailVerified"],
+  firestore: ["gender", "phone", "whatsapp", "username"],
+};
+
+export async function getUserProfileCompletion() {
+  try {
+    const { data: user, message, success } = await currUser();
+    if (!success || !user?.uid) throw new Error(message || "Unauthorized");
+
+    const uid = user.uid;
+
+    // 🔐 Get Firebase Auth user object
+    const authUser = await adminAuth.getUser(uid);
+
+    // 📄 Get Firestore user document
+    const userSnap = await adminDB.collection(userKey).doc(uid).get();
+    const firestoreUser = userSnap.exists ? userSnap.data() || {} : {};
+
+    // 🧮 Count filled fields
+    let filled = 0;
+    let total = 0;
+
+    // ✅ Check Auth fields
+    for (const field of REQUIRED_FIELDS.auth) {
+      total++;
+      const value = (authUser as any)[field];
+      if (field === "emailVerified") {
+        if (value === true) filled++;
+      } else if (value !== null && value !== undefined && value !== "") {
+        filled++;
+      }
+    }
+
+    // ✅ Check Firestore fields
+    for (const field of REQUIRED_FIELDS.firestore) {
+      total++;
+      const value = firestoreUser[field];
+      if (value !== null && value !== undefined && value !== "") {
+        filled++;
+      }
+    }
+
+    const completion = Math.round((filled / total) * 100);
+
+    return {
+      success: true,
+      data: {
+        completion,
+        filledFields: filled,
+        totalFields: total,
+        authFields: REQUIRED_FIELDS.auth.length,
+        firestoreFields: REQUIRED_FIELDS.firestore.length,
+      },
+      message: null,
+    };
+  } catch (err: any) {
+    return errorMessage(err.message);
+  }
+}

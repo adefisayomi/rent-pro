@@ -69,7 +69,7 @@ export default function Notification() {
         </div>
 
         <div className="w-full flex items-center justify-center border-t p-4 bg-muted rounded-b-md">
-          <p className="text-[10px] cursor-default text-muted-foreground">RentHouse &copy; 2024 All Rights Reserved.</p>
+          <p className="text-[10px] cursor-default text-muted-foreground">RentCreeb &copy; 2024 All Rights Reserved.</p>
         </div>
       </PopoverContent>
     </Popover>

@@ -24,6 +24,7 @@ import {
 import { Button } from "@/components/ui/button"
 import Image from 'next/image'
 import { addToFavourites, isPropertyLoved } from "@/actions/favourites";
+import useAuthStore from "@/contexts/useAuth";
 
 
 
@@ -64,11 +65,10 @@ export default function SingleProperty({ property }: { property: NewPropertySche
         <h3 className="text-sm font-medium">{currency(property.price, { symbol: "₦", precision: 2 }).format()} / <span className="text-[11px] text-muted-foreground">year</span></h3>
         <Button
           onClick={() => router.push(`/listings/${property?.id}`)}
-          size="sm"
-          variant="outline"
-          className="px-5 text-primary border-primary"
+          size="icon"
+          className="rounded-full"
         >
-          <ChevronsRight className="w-4" />
+          <ArrowRight className="w-[13px]" />
         </Button>
       </div>
     </div>
@@ -135,12 +135,6 @@ export function ImageSlider({ images = [], propertyId }: { images?: string[], pr
             </CarouselItem>
           ) : (
             images.map((image, index) => (
-              <Dialog key={index} onOpenChange={(open) => open && setSelectedIndex(index)}>
-                <DialogTrigger
-                  asChild
-                  onClick={() => setCurrent(index)}
-                  className="cursor-pointer"
-                >
                   <Image
                     src={image}
                     alt={`Image ${index + 1}`}
@@ -153,49 +147,6 @@ export function ImageSlider({ images = [], propertyId }: { images?: string[], pr
                     unoptimized
                     onLoad={() => setLoading(false)}
                   />
-                </DialogTrigger>
-
-                <DialogContent
-                  overlayClassName="bg-black/95 z-[100]"
-                  className="w-full z-[100] bg-transparent flex items-center justify-center border-0 sm:max-w-4xl h-[70vh] p-0"
-                >
-                  <Carousel setApi={setApi} className="w-full max-w-2xl">
-                    <CarouselContent>
-                      {images.map((image, index) => (
-                        <CarouselItem key={index}>
-                          <div className="p-1">
-                            <img
-                              src={image}
-                              alt={`Property ${index + 1}`}
-                              className="w-full h-full flex object-cover aspect-square"
-                            />
-                          </div>
-                        </CarouselItem>
-                      ))}
-                    </CarouselContent>
-                  
-
-                    {/* Dot Slider */}
-                    <div className="w-full flex items-center justify-center md:justify-between p-2">
-                      <div className="relative items-center gap-4 hidden md:flex">
-                      <CarouselPrevious className="left-0 size-6"/>
-                      <CarouselNext className="left-10 size-6"/>
-                      </div>
-                    <div className="flex justify-center space-x-2 mt-4">
-                      {images.map((_, index) => (
-                        <button
-                          key={index}
-                          className={`w-2 h-[3px] rounded-full transition-all ${
-                            index === current ? "bg-white" : "bg-gray-500"
-                          }`}
-                          onClick={() => api?.scrollTo(index)}
-                        />
-                      ))}
-                    </div>
-                  </div>
-                  </Carousel>
-                </DialogContent>
-              </Dialog>
             ))
           )}
         </CarouselContent>
@@ -212,6 +163,7 @@ interface LoveButtonProps {
 
 const LoveButton = ({ propertyId }: LoveButtonProps) => {
 
+  const {user} = useAuthStore()
   const pathname = usePathname()
   const [loved, setLoved] = useState(false);
   const { setAlert } = useAlert();
@@ -227,6 +179,9 @@ const LoveButton = ({ propertyId }: LoveButtonProps) => {
   }, [checkLovedStatus, pathname]);
 
   const handleLoveClick = async () => {
+    if (!user) {
+      return setAlert("Login to continue", "info");
+    }
     if (!propertyId) return;
 
     const { data, success } = await addToFavourites(propertyId);

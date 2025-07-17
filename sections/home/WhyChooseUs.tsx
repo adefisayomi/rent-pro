@@ -39,7 +39,7 @@ export default function WhyChooseUs() {
             <h4 className="uppercase text-xs text-slate-300  text-center">customer satisfaction</h4>
             <h1 className="capitalize font-semibold text-[33px] text-primary text-center">why choose us?</h1>
             <p className="text-[11px] max-w-sm text-slate-300">
-              Welcome to RentHouse, your ultimate destination for hassle-free renting in Lagos. With our comprehensive range
+              Welcome to RentCreeb, your ultimate destination for hassle-free renting in Lagos. With our comprehensive range
               of services and commitment to customer satisfaction, choosing us means choosing convenience, reliability,
               and peace of mind.
             </p>

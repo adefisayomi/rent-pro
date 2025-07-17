@@ -52,7 +52,7 @@ export default function Page () {
           Services
         </h1>
         <p className="text-left font-semibold text-md mb-8 max-w-2xl ">
-          At RentHouse Inc., we strive to make your rental journey seamless and stress-free. Discover our range of services tailored to assist you in finding the perfect home.
+          At RentCreeb Inc., we strive to make your rental journey seamless and stress-free. Discover our range of services tailored to assist you in finding the perfect home.
         </p>
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
           {services.map((service, index) => (

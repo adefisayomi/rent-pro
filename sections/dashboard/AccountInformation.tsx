@@ -78,8 +78,9 @@ export default function AccountInformation ({title, userDetails}: {title: string
     return (
     <Form {...form}>
             
-            <h2 className="text-xs font-semibold capitalize pb-2">{title}</h2>
-            <form  onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-5 w-full">
+            
+            <form  onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-5 w-full bg-white rounded-[4px] p-6 border">
+                <h2 className="text-xs font-semibold capitalize">{title}</h2>
 
                 <span className='my-4'><ImageUploader/></span>
 

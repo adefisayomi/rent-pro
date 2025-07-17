@@ -70,7 +70,7 @@ export default function ImageUploader() {
 
   return (
     <div className="w-full flex flex-col md:flex-row items-center gap-4 justify-start">
-      <Avatar className="border-2 cursor-pointer w-32 h-32 md:w-20 md:h-20 flex items-center justify-center">
+      <Avatar className="border-2 cursor-pointer w-32 h-32 md:w-14 md:h-14 flex items-center justify-center">
         {
           uploading ? <Loader2 className="w-4 animate-spin duration-1000" /> : (
             <>
@@ -86,7 +86,7 @@ export default function ImageUploader() {
 
       <label 
         htmlFor="profile_image"
-        className="border-2 border-slate-400 hover:bg-muted cursor-pointer md:rounded-3xl rounded-lg capitalize w-[80%] md:w-fit px-3 h-10 flex items-center justify-center text-[12px] font-medium text-gray-800"
+        className="border-2 border-slate-400 hover:bg-muted cursor-pointer md:rounded-3xl rounded-lg capitalize w-[80%] md:w-fit px-3 h-9 flex items-center justify-center text-[11px] font-medium text-gray-800"
       >
         {
         !uploading && 

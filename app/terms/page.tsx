@@ -106,7 +106,7 @@ export default function TermsAndConditions() {
         <section className="mb-8">
           <h2 className=" font-bold text-primary mb-2 text-xs uppercase ">10. Contact Us</h2>
           <p className="text-gray-600 text-xs">
-            If you have any questions about these Terms, please contact us at support@renthouseinc.com.
+            If you have any questions about these Terms, please contact us at support@rentcreebinc.com.
           </p>
         </section>
       </div>

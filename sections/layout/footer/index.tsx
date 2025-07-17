@@ -1,3 +1,5 @@
+"use client"
+
 import React, { memo, useMemo, ReactNode } from "react";
 import Logo from "@/components/Logo";
 import { Facebook, Twitter, Instagram, Linkedin, Phone, MapPin, Mail } from "lucide-react";
@@ -27,7 +29,7 @@ const Footer: React.FC = () => {
 
       <div className="w-full border-t border-slate-600 bg-slate-800 text-slate-200">
         <div className="w-full text-slate-300 max-w-8xl mx-auto flex gap-2 flex-col p-2 md:px-0 md:flex-row justify-between items-center py-3">
-          <p className="text-[11px] cursor-default">RentHouse &copy; 2024 All Right Reserved.</p>
+          <p className="text-[11px] cursor-default">RentCreeb &copy; 2024 All Right Reserved.</p>
 
           <ul className="flex items-center gap-2 text-[11px] capitalize">
             <li><Link href='/terms'>terms of use</Link></li>
@@ -39,6 +41,7 @@ const Footer: React.FC = () => {
         </div>
       </div>
     </footer>
+    
   );
 };
 
@@ -94,11 +97,11 @@ const ContactInfo: React.FC = memo(() => (
         text="+234 234 567 823"
       />
       <ContactLink
-        href="mailto:info@renthouse.com"
+        href="mailto:info@rentcreeb.com"
         ariaLabel="Our email"
         title="Our email"
         icon={<Mail className="w-5 h-5 text-primary" />}
-        text="info@renthouse.com"
+        text="info@rentcreeb.com"
       />
       <ContactLink
         href="https://www.google.com/maps"
@@ -116,6 +119,7 @@ const ContactInfo: React.FC = memo(() => (
       </div>
     </div>
   </div>
+  
 ));
 ContactInfo.displayName = 'ContactInfo'
 
@@ -132,6 +136,7 @@ const ContactLink: React.FC<ContactLinkProps> = memo(({ href, ariaLabel, title, 
     {icon}
     <p className="text-xs text-slate-300">{text}</p>
   </Link>
+  
 ));
 
 ContactLink.displayName = 'ContactLink'
@@ -153,6 +158,7 @@ const MenuComponent: React.FC<MenuComponentProps> = memo(({ menu }) => (
       ))}
     </ul>
   </div>
+  
 ));
 
 MenuComponent.displayName = 'MenuComponent'

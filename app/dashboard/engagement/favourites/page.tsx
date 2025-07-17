@@ -1,12 +1,7 @@
 import { getUserFavourites } from "@/actions/favourites";
 import Favourites from "./Favourites";
 
-type Props = {
-  params: Promise<{ id: string }>;
-  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
-};
-
-export default async function Page({ params, searchParams }: Props) {
+export default async function Page() {
 
   const favouriteProperties = (await getUserFavourites()).data;
 

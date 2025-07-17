@@ -84,11 +84,11 @@ export async function sendEmail(to: string, name: string, message: string, ctaLi
       <p>We are pleased to confirm receipt of your message with **Rent House INC**.</p>
       <p>Our team has received your inquiry and will get back to you as soon as possible. Your satisfaction is our priority, and we appreciate your patience.</p>
       <p>If you need urgent assistance, please do not hesitate to contact our support team.</p>
-      <p><a href="mailto:support@renthouse.com" class="button">Contact Support</a></p>
+      <p><a href="mailto:support@rentcreeb.com" class="button">Contact Support</a></p>
     </div>
     <div class="footer">
       &copy; 2024 Rent House INC |  
-      <a href="https://renthouse.com/unsubscribe?email=${to}">Unsubscribe</a>
+      <a href="https://rentcreeb.com/unsubscribe?email=${to}">Unsubscribe</a>
     </div>
   </div>
 </body>
@@ -97,7 +97,7 @@ export async function sendEmail(to: string, name: string, message: string, ctaLi
 `
 
     const mailOptions = {
-      from: `"Rent House INC" <goodguys@renthouse.com>`,
+      from: `"Rent House INC" <goodguys@rentcreeb.com>`,
       to,
       subject: `Dear ${name}, we've recieved your message.`,
       text: `Dear ${name},\n\n${message}\n\n${ctaLink ? `Take Action: ${ctaLink}` : ''}\n\nRegards,\nCompany Name`,

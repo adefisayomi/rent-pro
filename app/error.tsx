@@ -1,10 +1,12 @@
-'use client';
+"use client"
 
-import Link from 'next/link';
+
 import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
+import { Loader2 } from 'lucide-react';
 import { Metadata } from 'next';
-import { ChevronLeft } from 'lucide-react';
 import Image from 'next/image';
+import { useState } from 'react';
 
 export const metadata: Metadata = {
   title: "Server Error",
@@ -12,6 +14,11 @@ export const metadata: Metadata = {
 };
 
 const Error500 = () => {
+  const [reload, setReload] = useState(false)
+  const handleReload = () => {
+    setReload(true)
+    window.location.reload()
+  }
   return (
     <main className="flex min-h-screen flex-col items-center justify-center p-4 text-center">
     <Image
@@ -30,9 +37,10 @@ const Error500 = () => {
       >
        Service Unavailable!
       </h1>
-      <Link href="/">
-        <Button className=" px-4 flex items-center gap-2"> <ChevronLeft className="w-3" /> Back To Home</Button>
-      </Link>
+        <Button onClick={handleReload} className=" px-4 flex items-center gap-2">
+          <Loader2 className={cn('w-5 ', reload && "animate-spin duration-1000")} />
+          {reload ? "Reloading" : "Reload"} Page
+        </Button> 
     </div>
   </main>
   );

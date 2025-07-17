@@ -26,7 +26,7 @@ import { newPropertySchema, NewPropertySchemaType } from "@/sections/dashboard/f
 import AutocompleteComponent from "@/sections/SearchForms/AutocompleteComponent"
 import NewPropImagesUploader from "@/sections/dashboard/NewPropertyImageUploader"
 import BreadcrumbHeader from "@/components/Breadcrumbs"
-import { useParams, useRouter } from "next/navigation"
+import { useParams, usePathname, useRouter } from "next/navigation"
 const LeafletMap = dynamic(() => import('@/components/LeafletMap'), { ssr: false });
 
 
@@ -37,6 +37,7 @@ export default function EditProperty ({property}: {property: NewPropertySchemaTy
 
     const param = useParams()
     const router = useRouter()
+    const pathname = usePathname()
     const {setAlert} = useAlert()
     const form = useForm<yup.InferType<typeof newPropertySchema>>({
         resolver: yupResolver(newPropertySchema),
@@ -72,11 +73,11 @@ export default function EditProperty ({property}: {property: NewPropertySchemaTy
              }
         }
         handleResetAddress()
-      }, [location])
+      }, [location, form])
 
       useEffect(() => {
         form.reset(property)
-      }, [router])
+      }, [pathname, form])
 
 
     return (
@@ -291,7 +292,7 @@ export default function EditProperty ({property}: {property: NewPropertySchemaTy
                     <FormField
                         control={form.control}
                         name="address"
-                        render={({ field }) => (
+                        render={() => (
                             <FormItem className="w-full col-span-3">
                             <FormLabel className="">Address*</FormLabel>
                             <FormControl>

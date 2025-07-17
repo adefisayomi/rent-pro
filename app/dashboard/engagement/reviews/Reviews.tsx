@@ -22,7 +22,6 @@ import Rating from "@/components/Rating"
 import {
     Pagination,
     PaginationContent,
-    PaginationEllipsis,
     PaginationItem,
     PaginationLink,
     PaginationNext,
@@ -35,7 +34,6 @@ import { cn } from "@/lib/utils"
 
 export default function Reviews ({title, reviews}: {title: string, reviews: any[]}) {
     const [sort, setSort] = useState('newest')
-    const totalProperty = reviews && reviews.length || 0
     const totalPage = reviews && reviews.length <= 6 ? 1 : customDivision(reviews.length, 6)
     const [page, setPage] = useState(1)
     const nextPage = () => page < totalPage && setPage(page+1)

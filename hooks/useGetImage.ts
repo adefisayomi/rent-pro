@@ -1,6 +1,4 @@
-import { storage, images_key } from "../config";
 import { errorMessage } from "../constants";
-import { ref, uploadBytesResumable, getDownloadURL, deleteObject } from 'firebase/storage';
 
 // Improved TypeScript Types
 type ImageResponse = {

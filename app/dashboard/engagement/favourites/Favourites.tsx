@@ -2,7 +2,6 @@
 import {
     Pagination,
     PaginationContent,
-    PaginationEllipsis,
     PaginationItem,
     PaginationLink,
     PaginationNext,
@@ -12,13 +11,11 @@ import useAuthStore from "@/contexts/useAuth"
 import { NewPropertySchemaType } from "@/sections/dashboard/formSchemas"
 import SingleProperty from "@/sections/property/singleProperty"
 import { usePathname, useRouter } from "next/navigation"
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import {
     Table,
     TableBody,
-    TableCaption,
     TableCell,
-    TableFooter,
     TableHead,
     TableHeader,
     TableRow,
@@ -40,7 +37,6 @@ export default function Favourites ({favourites}: {favourites: (NewPropertySchem
     const totalPage = favourites && favourites.length <= 6 ? 1 : customDivision(favourites.length, 6)
     const [page, setPage] = useState(1)
     const router = useRouter()
-    const pathname = usePathname()
     const [sort, setSort] = useState('newest')
     const {setAlert} = useAlert()
 
@@ -51,7 +47,7 @@ export default function Favourites ({favourites}: {favourites: (NewPropertySchem
     const handleLoveClick = async (propertyId: string) => {
       if (!propertyId) return;
   
-      const { data, success } = await addToFavourites(propertyId);
+      const { success } = await addToFavourites(propertyId);
       if (success) {
         setAlert("Removed from favourites", "success");
       } 

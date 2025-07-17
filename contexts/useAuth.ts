@@ -14,10 +14,8 @@ import {
   User as FirebaseUser,
   getAdditionalUserInfo
 } from "firebase/auth";
-import { auth_token } from "@/constants";
 import { getFirebaseError } from "@/utils/firebaseErrors";
 import Routes from "@/Routes";
-import useAlert from "../hooks/useAlert";
 import axiosInstance from "@/utils/axiosInstance";
 import { ToastType } from "@/components/CustomToast";
 import Cookies from "js-cookie";

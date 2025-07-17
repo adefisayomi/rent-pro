@@ -115,7 +115,7 @@ export default function MobileHeader() {
               <UserMenu />
 
               <div className="w-full flex items-center justify-center border-t p-4 rounded-b-md mt-4">
-                <p className="text-[10px] cursor-default text-muted-foreground">RentHouse &copy; 2024 All Right Reserved.</p>
+                <p className="text-[10px] cursor-default text-muted-foreground">RentCreeb &copy; 2024 All Right Reserved.</p>
               </div>
             </SheetFooter>
           </SheetContent>

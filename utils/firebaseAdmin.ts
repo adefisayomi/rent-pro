@@ -1,4 +1,3 @@
-
 import admin, { ServiceAccount } from 'firebase-admin'
 import serviceAccount from './serviceAccountConfig'
 if (!admin.apps.length) {

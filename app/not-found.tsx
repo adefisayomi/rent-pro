@@ -1,20 +1,13 @@
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { Metadata } from 'next';
 import { ChevronLeft } from 'lucide-react';
 import Image from 'next/image';
-
-// Define metadata for the page
-export const metadata: Metadata = {
-  title: "Page not found",
-  description: "This page cannot be found",
-};
 
 // Functional component for the 404 page
 const NotFound = () => {
   return (
     <main className="flex min-h-screen flex-col items-center justify-center p-4 text-center">
-    <h1 className="sr-only">404 - Page Not Found | RentHouse INC.</h1>
+    <h1 className="sr-only">404 - Page Not Found | RentCreeb INC.</h1>
     <p className="sr-only">The page you are looking for does not exist or has been moved.</p>
 
     <Image

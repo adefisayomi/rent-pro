@@ -56,7 +56,6 @@ export const addToFavourites = async (
       };
     }
     finally {
-      console.log('revalidating---------')
       revalidatePath(Routes.dashboard.engagement.favourites)
     }
   };
