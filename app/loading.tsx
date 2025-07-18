@@ -10,7 +10,14 @@ export default function Loading() {
       <div className="animate-blink">
         <Logo/>
       </div>
-      <p className="text-muted-foreground font-medium text-[10px] capitalize">{pathname}</p>
+      <div className='flex items-center justify-center gap-2 '>
+        <p className="text-muted-foreground font-medium text-[10px] capitalize">{pathname}</p>
+         <div className="flex space-x-1">
+          <div className="w-[4px] h-[4px] bg-primary rounded-full dot1"></div>
+          <div className="w-[4px] h-[4px] bg-primary rounded-full dot2"></div>
+          <div className="w-[4px] h-[4px] bg-primary rounded-full dot3"></div>
+         </div>
+      </div>
     </div>
   );
 }
